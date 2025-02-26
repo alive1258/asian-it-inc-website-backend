@@ -1,11 +1,34 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from './entities/user.entity';
+import { DataSource, Repository } from 'typeorm';
+import { Request } from 'express';
+import { ConfigType } from '@nestjs/config';
+import profileConfig from './config/profile.config';
+import { CreateUserProvider } from './providers/create-user.provider';
 
 @Injectable()
 export class UsersService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  constructor(
+    /**
+     * Inject Repositories
+     */
+    @InjectRepository(User)
+    private readonly usersRepository: Repository<User>,
+
+    //Inject  profileConfig
+    @Inject(profileConfig.KEY)
+    private readonly profileConfiguration: ConfigType<typeof profileConfig>,
+
+    //inject createUserProvider
+    private readonly createUserProvider: CreateUserProvider,
+  ) {}
+
+  //Create New user
+  public async createUser(createUserDto: CreateUserDto) {
+    return await this.createUserProvider.createUser(createUserDto);
   }
 
   findAll() {

@@ -30,14 +30,14 @@ export class CreateUserDto {
    */
   @ApiProperty({
     description: 'Mobile Number of User',
-    example: '+1 123-456-7890',
+    example: '+8801941221528',
     maxLength: 15,
     required: false,
   })
   @IsOptional()
   @IsString()
   @MaxLength(15)
-  @Matches(/^\+?[1-9]\d{1,14}$/)
+  @Matches(/^0[1-9]\d{9}$/)
   mobile?: string;
 
   /**

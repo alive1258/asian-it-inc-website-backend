@@ -8,6 +8,7 @@ import { Request } from 'express';
 import { ConfigType } from '@nestjs/config';
 import profileConfig from './config/profile.config';
 import { CreateUserProvider } from './providers/create-user.provider';
+import { FindOneUserByEmailProvider } from './providers/find-one-user-by-email.provider';
 
 @Injectable()
 export class UsersService {
@@ -24,6 +25,9 @@ export class UsersService {
 
     //inject createUserProvider
     private readonly createUserProvider: CreateUserProvider,
+
+    //inject findOneByEmailProvider
+    private readonly findOneByEmailProvider: FindOneUserByEmailProvider,
   ) {}
 
   //Create New user
@@ -37,6 +41,11 @@ export class UsersService {
 
   findOne(id: number) {
     return `This action returns a #${id} user`;
+  }
+
+  // Find a single user by email
+  public async findOneByEmail(email: string) {
+    return await this.findOneByEmailProvider.findOneByEmail(email);
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {

@@ -59,7 +59,7 @@ export class CreateUserDto {
    * Password
    */
   @IsString()
-  @IsOptional()
+  @IsNotEmpty()
   @MinLength(6)
   @MaxLength(255)
   @Matches(
@@ -69,5 +69,5 @@ export class CreateUserDto {
         'Password must be at least 6 characters long, include one uppercase letter, one lowercase letter, one number, and one special character',
     },
   )
-  password?: string;
+  password: string;
 }

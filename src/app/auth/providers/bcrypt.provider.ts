@@ -5,7 +5,7 @@ import * as bcrypt from 'bcrypt';
 @Injectable()
 export class BcryptProvider implements HashingProvider {
   /**
-   * Hashes a given password or buffer using bcrypt.
+   * Hashes a given password or buffer using bcrypt. updte
    * @param data - The input data (string or Buffer) to hash.
    * @returns A promise that resolves to the hashed string.
    */

@@ -1,4 +1,9 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  RequestTimeoutException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -41,6 +46,28 @@ export class UsersService {
 
   findOne(id: number) {
     return `This action returns a #${id} user`;
+  }
+  //   Find a user by Id
+  public async findOneById(id: string) {
+    let user = undefined as User | null | undefined;
+    try {
+      user = await this.usersRepository.findOneBy({
+        id,
+      });
+    } catch (error) {
+      throw new RequestTimeoutException(
+        `We are currently experiencing a temporary issue processing your request. Please try again later.`,
+        {
+          description:
+            'Error connecting to the Database. Please try again later',
+        },
+      );
+    }
+    // handle the user dose not exist
+    if (!user) {
+      throw new BadRequestException(`The User dose not exist.`);
+    }
+    return user;
   }
 
   // Find a single user by email

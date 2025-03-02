@@ -10,6 +10,9 @@ import profileConfig from './app/modules/users/config/profile.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import jwtConfig from './app/auth/config/jwt.config';
 import { JwtModule } from '@nestjs/jwt';
+import { APP_GUARD } from '@nestjs/core';
+import { AccessTokenGuard } from './app/auth/guards/access-token/access-token.guard';
+import { AuthenticationGuard } from './app/auth/guards/authentication/authentication.guard';
 
 /**
  * user Created Modules
@@ -44,6 +47,13 @@ const ENV = process.env.NODE_ENV;
     JwtModule.registerAsync(jwtConfig.asProvider()),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthenticationGuard,
+    },
+    AccessTokenGuard,
+  ],
 })
 export class AppModule {}

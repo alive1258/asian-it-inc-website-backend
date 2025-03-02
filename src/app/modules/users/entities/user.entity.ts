@@ -36,7 +36,7 @@ export class User {
    * Password
    */
   @Column({ type: 'varchar', length: 255, nullable: true })
-  password?: string;
+  password: string;
   /**
    * Remember Token
    */

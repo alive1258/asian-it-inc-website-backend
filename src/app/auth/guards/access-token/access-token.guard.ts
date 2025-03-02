@@ -36,7 +36,10 @@ export class AccessTokenGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
 
     // Allow unauthenticated access to the sign-in endpoint
-    if (request.path === '/api/v1/auth/sign-in') {
+    if (
+      request.path === '/api/v1/auth/refresh-token' ||
+      request.path === '/api/v1/auth/sign-in'
+    ) {
       return true;
     }
     // Extract the authorization token from the request headers

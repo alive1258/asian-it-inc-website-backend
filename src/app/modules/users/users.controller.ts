@@ -8,6 +8,7 @@ import {
   Delete,
   UseInterceptors,
   ClassSerializerInterceptor,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -52,9 +53,9 @@ export class UsersController {
    * @param id - The ID of the user.
    * @returns The user data if found.
    */
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id); // Convert id to a number before passing.
+  @Get('/:id') // ✅ Correct, now properly used for fetching a single user by ID
+  public getUserById(@Param('id', ParseIntPipe) id: string) {
+    return this.usersService.findOneById(id);
   }
 
   /**

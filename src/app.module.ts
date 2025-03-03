@@ -10,9 +10,10 @@ import profileConfig from './app/modules/users/config/profile.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import jwtConfig from './app/auth/config/jwt.config';
 import { JwtModule } from '@nestjs/jwt';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AccessTokenGuard } from './app/auth/guards/access-token/access-token.guard';
 import { AuthenticationGuard } from './app/auth/guards/authentication/authentication.guard';
+import { DataResponseInterceptor } from './app/common/interceptors/data-response/data-respone.interceptor';
 
 /**
  * user Created Modules
@@ -52,6 +53,10 @@ const ENV = process.env.NODE_ENV;
     {
       provide: APP_GUARD,
       useClass: AuthenticationGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: DataResponseInterceptor,
     },
     AccessTokenGuard,
   ],

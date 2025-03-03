@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ name: 'users' })
@@ -33,9 +34,19 @@ export class User {
   email_verified_at?: Date;
 
   /**
+   * Is Verified
+   */
+  @Column({
+    type: 'boolean',
+    default: false,
+  })
+  is_verified?: boolean;
+
+  /**
    * Password
    */
   @Column({ type: 'varchar', length: 255, nullable: true })
+  @Exclude()
   password: string;
   /**
    * Remember Token

@@ -8,7 +8,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { DataSource, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Request } from 'express';
 import { ConfigType } from '@nestjs/config';
 import profileConfig from './config/profile.config';
@@ -36,17 +36,14 @@ export class UsersService {
   ) {}
 
   //Create New user
-  public async createUser(createUserDto: CreateUserDto) {
-    return await this.createUserProvider.createUser(createUserDto);
+  public async createUser(req: Request, createUserDto: CreateUserDto) {
+    return await this.createUserProvider.createUser(req, createUserDto);
   }
 
   findAll() {
     return `This action returns all users`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
   //   Find a user by Id
   public async findOneById(id: string) {
     let user = undefined as User | null | undefined;
@@ -75,8 +72,21 @@ export class UsersService {
     return await this.findOneByEmailProvider.findOneByEmail(email);
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  public async update(id: string, updateUserDto: UpdateUserDto) {
+    if (!id) {
+      throw new BadRequestException('User ID is required.');
+    }
+    const existUser = await this.usersRepository.findOneBy({ id });
+
+    if (!existUser) {
+      throw new BadRequestException('User not found.');
+    }
+
+    // update user
+    Object.assign(existUser, updateUserDto);
+
+    // save updated user
+    return await this.usersRepository.save(existUser);
   }
 
   remove(id: number) {

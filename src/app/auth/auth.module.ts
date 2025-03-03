@@ -10,6 +10,7 @@ import { AuthController } from './auth.controller';
 import { SignInProvider } from './providers/sign-in.provider';
 import { GenerateTokensProvider } from './providers/generate-tokens.provider';
 import { RefreshTokensProvider } from './providers/refresh-tokens.provider';
+import { OtpSendModule } from '../common/otp-send/otp-send.module';
 
 @Module({
   controllers: [AuthController],
@@ -27,6 +28,7 @@ import { RefreshTokensProvider } from './providers/refresh-tokens.provider';
     forwardRef(() => UsersModule),
     ConfigModule.forFeature(jwtConfig),
     JwtModule.registerAsync(jwtConfig.asProvider()),
+    OtpSendModule,
   ],
   exports: [AuthService, HashingProvider],
 })

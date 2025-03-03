@@ -5,6 +5,7 @@ import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Auth } from './decorators/auth.decorator';
 import { AuthType } from './enums/auth-type.enum';
 import { RefreshTokenDto } from './dtos/refresh-token.dtos';
+import { UserOTPDto } from './dtos/user-otp.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -35,5 +36,21 @@ export class AuthController {
   public async refreshTokens(@Body() refreshTokenDto: RefreshTokenDto) {
     //sign in
     return await this.authService.refreshTokens(refreshTokenDto);
+  }
+
+  /**
+   * Verify OTP controller
+   */
+  @Post('/verify-otp')
+  @Auth(AuthType.None)
+  @ApiOperation({
+    summary: 'Verify OTP',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Data fetched successfully.',
+  })
+  public verifyOTP(@Body() userOTPDto: UserOTPDto) {
+    return this.authService.verifyOTP(userOTPDto);
   }
 }

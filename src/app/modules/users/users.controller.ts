@@ -9,18 +9,22 @@ import {
   UseInterceptors,
   ClassSerializerInterceptor,
   ParseIntPipe,
+  Req,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Auth } from 'src/app/auth/decorators/auth.decorator';
 import { AuthType } from 'src/app/auth/enums/auth-type.enum';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Request } from 'express';
 
 /**
  * UsersController handles all user-related API endpoints.
  * It provides routes for user creation, retrieval, updating, and deletion.
  */
 @Controller('users')
+@ApiTags('Users')
 export class UsersController {
   /**
    * Injects the UsersService to handle business logic for user operations.
@@ -29,19 +33,25 @@ export class UsersController {
 
   /**
    * Creates a new user.
-   * @param createUserDto - Data Transfer Object containing user details.
-   * @returns The newly created user data.
+  
    */
   @Post()
+  @ApiOperation({
+    summary: 'Create a data.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Data created successfully.',
+  })
   @Auth(AuthType.None) // No authentication required for user registration.
   @UseInterceptors(ClassSerializerInterceptor) // Ensures sensitive fields are excluded from response.
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.createUser(createUserDto);
+  create(@Req() req: Request, @Body() createUserDto: CreateUserDto) {
+    return this.usersService.createUser(req, createUserDto);
   }
 
   /**
    * Retrieves all users from the database.
-   * @returns An array of user objects.
+
    */
   @Get()
   findAll() {
@@ -50,8 +60,7 @@ export class UsersController {
 
   /**
    * Retrieves a specific user by their unique ID.
-   * @param id - The ID of the user.
-   * @returns The user data if found.
+ 
    */
   @Get('/:id') // ✅ Correct, now properly used for fetching a single user by ID
   public getUserById(@Param('id', ParseIntPipe) id: string) {
@@ -60,19 +69,16 @@ export class UsersController {
 
   /**
    * Updates a user's information.
-   * @param id - The ID of the user to update.
-   * @param updateUserDto - Data Transfer Object containing updated fields.
-   * @returns The updated user data.
+   
    */
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+    return this.usersService.update(id, updateUserDto);
   }
 
   /**
    * Deletes a user by ID.
-   * @param id - The ID of the user to delete.
-   * @returns A success message or error response.
+ 
    */
   @Delete(':id')
   remove(@Param('id') id: string) {

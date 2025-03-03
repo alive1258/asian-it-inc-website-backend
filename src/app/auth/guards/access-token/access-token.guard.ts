@@ -38,7 +38,8 @@ export class AccessTokenGuard implements CanActivate {
     // Allow unauthenticated access to the sign-in endpoint
     if (
       request.path === '/api/v1/auth/refresh-token' ||
-      request.path === '/api/v1/auth/sign-in'
+      request.path === '/api/v1/auth/sign-in' ||
+      request.path === '/api/v1/auth/verify-otp'
     ) {
       return true;
     }

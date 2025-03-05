@@ -1,17 +1,12 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { SignInDto } from './dtos/signin.dto';
 import { SignInProvider } from './providers/sign-in.provider';
 import { RefreshTokensProvider } from './providers/refresh-tokens.provider';
-import { RefreshTokenDto } from './dtos/refresh-token.dtos';
 import { UserOTPDto } from './dtos/user-otp.dto';
-import { OtpService } from '../common/otp-send/otp-send.service';
-import * as bcrypt from 'bcrypt';
+import { VerifyOTPProvider } from './providers/veryfy-otp.provider';
 import { UsersService } from '../modules/users/users.service';
-import { GenerateTokensProvider } from './providers/generate-tokens.provider';
+import { OtpService } from '../common/otp-send/otp-send.service';
+import { Request } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -20,70 +15,64 @@ export class AuthService {
      * Inject SigInProvider
      */
     private readonly signInProvider: SignInProvider,
-
+    /**
+     * Inject RefreshTokensProvider
+     */
     private readonly refreshTokensProvider: RefreshTokensProvider,
-
+    /**
+     * Inject verifyOTPProvider
+     */
+    private readonly verifyOTPProvider: VerifyOTPProvider,
+    /**
+     * Inject usersService
+     */
     private readonly usersService: UsersService,
-
+    /**
+     * Inject otpService
+     */
     private readonly otpService: OtpService,
-    private readonly generateTokensProvider: GenerateTokensProvider,
   ) {}
+
+  /**
+   * Signs in a user by validating credentials and generating access tokens.
+   * @param signInDto - The data transfer object containing user credentials.
+   * @returns The generated authentication tokens or error message if invalid.
+   */
   public async signIn(signInDto: SignInDto) {
     return await this.signInProvider.signIn(signInDto);
   }
 
-  public async refreshTokens(refreshTokenDto: RefreshTokenDto) {
-    return await this.refreshTokensProvider.refreshTokens(refreshTokenDto);
+  /**
+   * Refreshes the authentication tokens using a valid refresh token.
+   * @param refreshTokenDto - The data transfer object containing the refresh token.
+   * @returns The new access tokens if the refresh token is valid, or an error message.
+   */
+  public async refreshTokens(refreshToken: string) {
+    return await this.refreshTokensProvider.refreshTokens(refreshToken);
   }
 
+  /**
+   * Verifies the One-Time Password (OTP) for multi-factor authentication.
+   * @param userOTPDto - The data transfer object containing the OTP and other related information.
+   * @returns Verification status or error message if OTP is invalid.
+   */
   public async verifyOTP(userOTPDto: UserOTPDto) {
-    //check the userOTPDto exist
-    if (!userOTPDto.user_id || !userOTPDto.otp_code) {
+    return await this.verifyOTPProvider.verifyOTP(userOTPDto);
+  }
+
+  // reSendOTP
+  public async resendOTP(userId: string, mobile: string) {
+    if (!userId || !mobile) {
       throw new BadRequestException('Empty otp details are not allowed.');
     }
-    //return the user
-    const user = await this.usersService.findOneById(userOTPDto.user_id);
-
+    //find the user
+    let user = await this.usersService.findOneById(userId);
     if (!user) {
-      throw new NotFoundException('User not found.');
+      throw new BadRequestException('User not found.');
     }
 
-    // get the userOTP dat from database
-    const userOTPRecords = await this.otpService.findManyWithId(
-      userOTPDto.user_id,
-    );
-
-    if (userOTPRecords.length <= 0) {
-      throw new NotFoundException(
-        "Account record doesn't exist or has been verified already. Please sign up or login",
-      );
-    }
-
-    const { expire_at, otp_code: hashedOTP } = userOTPRecords[0];
-
-    // Check the OTP expiration
-    if (expire_at.getTime() < Date.now()) {
-      // ✅ Fixed expiration check logic
-      throw new BadRequestException('OTP has expired. Please request again.');
-    }
-
-    // Compare the otp
-    const validOTP = await bcrypt.compare(userOTPDto.otp_code, hashedOTP);
-
-    if (!validOTP) {
-      throw new BadRequestException('Invalid code passed. Check your inbox');
-    }
-    //update user info
-    user.is_verified = true;
-
-    // Update user verification
-    await this.usersService.update(user.id, user);
-
-    //send welcome sms
-    await this.otpService.sendWelcomeSms(user);
-
-    const tokens = await this.generateTokensProvider.generateTokens(user);
-
-    return tokens;
+    //resend the otp
+    const result = await this.otpService.reSendOtp(user);
+    return result;
   }
 }

@@ -47,7 +47,8 @@ export class SignInProvider {
     if (!isEqual) {
       throw new UnauthorizedException('Incorrect password');
     }
+    const result = await this.generateTokensProvider.generateTokens(user);
 
-    return await this.generateTokensProvider.generateTokens(user);
+    return { tokens: result };
   }
 }

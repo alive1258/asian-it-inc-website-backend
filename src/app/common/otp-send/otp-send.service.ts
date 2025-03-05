@@ -5,7 +5,7 @@ import {
   RequestTimeoutException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { OTP } from './entities/otp.entity';
 import { User } from 'src/app/modules/users/entities/user.entity';
 import * as bcrypt from 'bcrypt';
@@ -23,7 +23,7 @@ export class OtpService {
   /**
    * Send OTP
    */
-  public async sendOtp(user: User): Promise<OTP> {
+  public async sendOtp(user: User, entityManager: EntityManager): Promise<OTP> {
     if (!user.mobile) {
       throw new BadRequestException('User mobile number is required.');
     }
@@ -32,24 +32,75 @@ export class OtpService {
     const verify_code = Math.floor(1000 + Math.random() * 9000).toString();
 
     // Hash the OTP securely
-    const hashedOTP = await bcrypt.hash(verify_code, 10);
+    const salt = await bcrypt.genSalt();
+    const hashedOTP = await bcrypt.hash(verify_code, salt);
 
-    let newOTPData = this.userOTPRepository.create({
+    let newOTPData = entityManager.create(OTP, {
       added_by: user.id,
       otp_code: hashedOTP,
       attempt: 1,
-      expire_at: new Date(Date.now() + 60000), // Expires in 1 minute
+      expire_at: new Date(Date.now() + 2 * 60 * 1000),
     });
 
     try {
-      newOTPData = await this.userOTPRepository.save(newOTPData);
+      // Save OTP in the database
+      const savedOTP = await entityManager.save(OTP, newOTPData);
+
+      try {
+        // Send OTP via SMS
+        await this.sendOtpViaSms(user.mobile, verify_code);
+      } catch (error) {
+        console.error('SMS Sending Error:', error);
+        throw new RequestTimeoutException(
+          'Failed to send OTP via SMS. Please try again later.',
+        );
+      }
+
+      return savedOTP;
+    } catch (error) {
+      console.error('Database Error:', error);
+      throw new InternalServerErrorException('Could not save OTP data.');
+    }
+  }
+  /**
+   * ReSend OTP
+   */
+  public async reSendOtp(user: User): Promise<OTP> {
+    if (!user.mobile) {
+      throw new BadRequestException('User mobile number is required.');
+    }
+
+    // Generate a secure random OTP
+    const verify_code = Math.floor(1000 + Math.random() * 9000).toString();
+
+    // Hash the OTP securely
+    const salt = await bcrypt.genSalt();
+    const hashedOTP = await bcrypt.hash(verify_code, salt);
+
+    const userOTPRecord = await this.userOTPRepository.findOne({
+      where: {
+        added_by: user.id,
+      },
+    });
+    if (!userOTPRecord) {
+      throw new BadRequestException('User not found.');
+    }
+
+    // update the otp info
+    userOTPRecord.otp_code = hashedOTP;
+    userOTPRecord.attempt = Number(userOTPRecord.attempt + 1);
+    userOTPRecord.expire_at = new Date(Date.now() + 2 * 60 * 1000);
+
+    try {
+      await this.userOTPRepository.save(userOTPRecord);
     } catch (error) {
       throw new InternalServerErrorException('Could not save OTP data.');
     }
 
     try {
       // Send OTP via SMS
-      await this.sendOtpViaSms(user.mobile, verify_code);
+      const result = await this.sendOtpViaSms(user.mobile, verify_code);
+      console.log(result);
     } catch (error) {
       console.error('SMS Sending Error:', error);
       throw new RequestTimeoutException(
@@ -57,7 +108,7 @@ export class OtpService {
       );
     }
 
-    return newOTPData;
+    return userOTPRecord;
   }
 
   /**
@@ -73,10 +124,15 @@ export class OtpService {
     try {
       const response = await axios.get(requestUrl);
 
-      // ✅ Check if SMS was successfully sent
-      if (response.data.Status !== '0') {
+      if (!response.data || response.data.Status !== '0') {
         throw new InternalServerErrorException(
-          'SMS API request failed: ' + JSON.stringify(response.data),
+          `SMS API request failed: ${JSON.stringify(response.data)}`,
+        );
+      }
+
+      if (!response.data.Message_ID) {
+        throw new InternalServerErrorException(
+          'Message ID is missing in the response. OTP may not have been sent.',
         );
       }
     } catch (error) {

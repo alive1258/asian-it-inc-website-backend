@@ -1,5 +1,11 @@
-import { Exclude } from 'class-transformer';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Exclude, Transform } from 'class-transformer';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity({ name: 'users' })
 export class User {
@@ -57,12 +63,12 @@ export class User {
   /**
    * Created At
    */
-  @Column({ type: 'timestamp', nullable: true })
-  created_at?: Date;
+  @CreateDateColumn({ type: 'timestamp', nullable: true })
+  created_at: Date;
 
   /**
    * Updated At
    */
-  @Column({ type: 'timestamp', nullable: true })
-  updated_at?: Date;
+  @UpdateDateColumn({ type: 'timestamp', nullable: true })
+  updated_at: Date;
 }

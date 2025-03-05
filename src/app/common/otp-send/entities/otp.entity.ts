@@ -1,7 +1,11 @@
+import { Exclude } from 'class-transformer';
+import { User } from 'src/app/modules/users/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -20,8 +24,14 @@ export class OTP {
   @Column({
     type: 'bigint',
     nullable: false,
+    unique: true,
   })
   added_by: string;
+
+  // Added by relation
+  @OneToOne(() => User)
+  @JoinColumn({ name: 'added_by' })
+  added_by_user: User;
 
   /**
    * otp code
@@ -31,6 +41,7 @@ export class OTP {
     length: 512,
     nullable: false,
   })
+  @Exclude()
   otp_code: string;
 
   /**

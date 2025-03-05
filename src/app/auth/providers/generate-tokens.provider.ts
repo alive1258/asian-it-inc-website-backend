@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import jwtConfig from '../config/jwt.config';
 import { ConfigType } from '@nestjs/config';
@@ -31,21 +31,71 @@ export class GenerateTokensProvider {
       },
     );
   }
-  public async generateTokens(user: User) {
-    const [accessToken, refreshToken] = await Promise.all([
-      // generate the access token
-      this.signToken<Partial<ActiveUserData>>(
-        Number(user.id),
-        this.jwtConfigService.accessTokenTtl,
-        {
-          email: user.email,
-        },
-      ),
-      //generate the refresh token
+  public async getUserIdByRefreshToken(refreshToken: string) {
+    try {
+      // verify the refresh token using jwtService
 
-      //   this.signToken(user.id, this.jwtConfigService.refreshTokenTtl),
-      this.signToken(Number(user.id), this.jwtConfigService.refreshTokenTtl),
-    ]);
-    return { accessToken, refreshToken };
+      const user = await this.jwtService.verifyAsync<ActiveUserData>(
+        refreshToken,
+        {
+          secret: this.jwtConfigService.secret,
+          audience: this.jwtConfigService.audience,
+          issuer: this.jwtConfigService.issuer,
+        },
+      );
+      return user;
+    } catch (error) {
+      throw new UnauthorizedException(error);
+    }
+  }
+  // public async generateTokens(user: User) {
+  //   const [accessToken, refreshToken] = await Promise.all([
+  //     // generate the access token
+  //     this.signToken<Partial<ActiveUserData>>(
+  //       Number(user.id),
+  //       this.jwtConfigService.accessTokenTtl,
+  //       {
+  //         email: user.email,
+  //       },
+  //     ),
+  //     //generate the refresh token
+
+  //     //   this.signToken(user.id, this.jwtConfigService.refreshTokenTtl),
+  //     this.signToken(Number(user.id), this.jwtConfigService.refreshTokenTtl),
+  //   ]);
+  //   return { accessToken, refreshToken };
+  // }
+  public async generateAccessToken(user: User) {
+    //Generate the access token token
+    return await this.signToken<Partial<ActiveUserData>>(
+      Number(user.id),
+      this.jwtConfigService.accessTokenTtl,
+      {
+        email: user.email,
+      },
+    );
+  }
+  public async generateRefreshToken(user: User) {
+    //Generate the refresh token token
+    return await this.signToken<Partial<ActiveUserData>>(
+      Number(user.id),
+      this.jwtConfigService.refreshTokenTtl,
+      {
+        email: user.email,
+      },
+    );
+  }
+
+  public async generateTokens(user: User) {
+    //Access Token
+    const accessToken = await this.generateAccessToken(user);
+
+    // Refresh Toke
+    const refreshToken = await this.generateRefreshToken(user);
+
+    return {
+      accessToken,
+      refreshToken,
+    };
   }
 }

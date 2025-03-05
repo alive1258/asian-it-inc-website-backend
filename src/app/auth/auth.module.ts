@@ -11,6 +11,7 @@ import { SignInProvider } from './providers/sign-in.provider';
 import { GenerateTokensProvider } from './providers/generate-tokens.provider';
 import { RefreshTokensProvider } from './providers/refresh-tokens.provider';
 import { OtpSendModule } from '../common/otp-send/otp-send.module';
+import { VerifyOTPProvider } from './providers/veryfy-otp.provider';
 
 @Module({
   controllers: [AuthController],
@@ -23,6 +24,7 @@ import { OtpSendModule } from '../common/otp-send/otp-send.module';
     SignInProvider,
     GenerateTokensProvider,
     RefreshTokensProvider,
+    VerifyOTPProvider,
   ],
   imports: [
     forwardRef(() => UsersModule),

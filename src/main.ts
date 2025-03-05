@@ -3,6 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import * as cookieParser from 'cookie-parser';
 
 /**
  * Main bootstrap function to initialize the NestJS application
@@ -45,6 +46,8 @@ async function bootstrap() {
 
   // Set up Swagger UI at the specified endpoint
   SwaggerModule.setup('/api/v1/swagger', app, document);
+  // cookie parser
+  app.use(cookieParser());
 
   /**
    * Set a global prefix for all API routes

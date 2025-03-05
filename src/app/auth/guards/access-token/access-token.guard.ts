@@ -28,8 +28,7 @@ export class AccessTokenGuard implements CanActivate {
 
   /**
    * Determines whether the request can proceed based on authentication.
-   * @param context The execution context containing request details.
-   * @returns A boolean indicating whether access is granted.
+
    */
   async canActivate(context: ExecutionContext): Promise<boolean> {
     // Extract the request object from the execution context
@@ -39,12 +38,13 @@ export class AccessTokenGuard implements CanActivate {
     if (
       request.path === '/api/v1/auth/refresh-token' ||
       request.path === '/api/v1/auth/sign-in' ||
-      request.path === '/api/v1/auth/verify-otp'
+      request.path === '/api/v1/auth/verify-otp' ||
+      request.path === '/api/v1/auth/resend-otp'
     ) {
       return true;
     }
     // Extract the authorization token from the request headers
-    const token = this.extractRequestTokenFromHeader(request);
+    const token = this.extractTokenFromCookie(request);
 
     // If no token is provided, deny access
     if (!token) {
@@ -72,15 +72,23 @@ export class AccessTokenGuard implements CanActivate {
    * @returns The extracted access token or undefined if not found.
    */
 
-  private extractRequestTokenFromHeader(request: Request): string | undefined {
-    const authorizationHeader = request.headers.authorization;
-
-    // Ensure the header exists and follows the "Bearer <token>" format
-    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      return undefined;
-    }
-
-    // Extract and return the token part
-    return authorizationHeader.split(' ')[1];
+  // private getRequest(context: ExecutionContext): Request {
+  //   return context.switchToHttp().getRequest();
+  // }
+  private extractTokenFromCookie(request: Request): string | undefined {
+    const token = request.cookies?.accessToken;
+    return token;
   }
+
+  // private extractRequestTokenFromHeader(request: Request): string | undefined {
+  //   const authorizationHeader = request.headers.authorization;
+
+  //   // Ensure the header exists and follows the "Bearer <token>" format
+  //   if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+  //     return undefined;
+  //   }
+
+  //   // Extract and return the token part
+  //   return authorizationHeader.split(' ')[1];
+  // }
 }

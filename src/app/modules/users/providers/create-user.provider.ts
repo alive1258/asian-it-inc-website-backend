@@ -160,7 +160,7 @@ export class CreateUserProvider {
       newUser = await queryRunner.manager.save(newUser);
 
       // Send OTP for verification
-      await this.otpService.sendOtp(newUser);
+      await this.otpService.sendOtp(newUser, queryRunner.manager);
 
       await queryRunner.commitTransaction();
 

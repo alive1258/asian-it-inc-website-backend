@@ -1,4 +1,6 @@
 export interface ActiveUserData {
-  sub: number;
+  // id of database
+  sub: string;
+  // email of database
   email: string;
 }

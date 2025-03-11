@@ -6,6 +6,16 @@ import { ObjectLiteral, Repository, Brackets } from 'typeorm';
 import { PaginationQueryDto } from './dto/data-query.dto';
 import { IPagination } from './pagination.interface';
 
+// Define a DTO or interface for the parameter object
+interface DataQueryParams<T extends ObjectLiteral> {
+  paginationQuery: PaginationQueryDto;
+  searchableFields: string[];
+  repository: Repository<T>;
+  relations?: string[];
+  sumFields?: string[];
+  selectRelations?: string[];
+}
+
 @Injectable()
 export class DataQueryService {
   constructor(
@@ -16,20 +26,29 @@ export class DataQueryService {
     private readonly request: Request,
   ) {}
 
-  public async dataQuery<T extends ObjectLiteral>(
-    paginationQuery: PaginationQueryDto,
-    searchableFields: string[],
-    repository: Repository<T>,
-    relations: string[] = [],
-    sumFields: string[] = [],
-  ): Promise<IPagination<T>> {
+  public async dataQuery<T extends ObjectLiteral>({
+    paginationQuery,
+    searchableFields,
+    repository,
+    relations = [],
+    sumFields = [],
+    selectRelations = [],
+  }: DataQueryParams<T>): Promise<IPagination<T>> {
     // Ensure page and limit are numbers, providing default values if necessary
     const page = Number(paginationQuery.page) || 1;
     const limit = Number(paginationQuery.limit) || 10;
     const { search, filters } = paginationQuery;
-    console.log(filters, ';filters');
 
     const queryBuilder = repository.createQueryBuilder('entity');
+
+    // Dynamically join relations based on the passed relations array
+    relations.forEach((relation) => {
+      queryBuilder.leftJoinAndSelect(`entity.${relation}`, relation);
+    });
+    // Apply select only to relational fields while keeping all entity fields
+    if (selectRelations.length > 0) {
+      queryBuilder.select(['entity', ...selectRelations]);
+    }
 
     // Add dynamic filters (AND conditions)
     if (filters && Object.keys(filters).length > 0) {
@@ -58,11 +77,6 @@ export class DataQueryService {
         }),
       );
     }
-
-    // Dynamically join relations based on the passed relations array
-    relations.forEach((relation) => {
-      queryBuilder.leftJoinAndSelect(`entity.${relation}`, relation);
-    });
 
     // Apply pagination
     queryBuilder.skip((page - 1) * limit).take(limit);

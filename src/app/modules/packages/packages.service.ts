@@ -10,25 +10,52 @@ import { UpdatePackageDto } from './dto/update-package.dto';
 import { Packages } from './entities/package.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { DataQueryService } from 'src/app/common/data-query/data-query.service';
+import { IPagination } from 'src/app/common/data-query/pagination.interface';
+import { GetPackagesDto } from './dto/get.packages.dto';
 
 @Injectable()
 export class PackagesService {
   constructor(
     @InjectRepository(Packages)
-    private readonly membersRepository: Repository<Packages>,
+    private readonly packagesRepository: Repository<Packages>,
+    private readonly dataQueryService: DataQueryService,
   ) {}
 
   public async create(createPackageDto: CreatePackageDto): Promise<Packages> {
-    const packages = this.membersRepository.create(createPackageDto);
-    return await this.membersRepository.save(packages);
+    const packages = this.packagesRepository.create(createPackageDto);
+    return await this.packagesRepository.save(packages);
   }
 
-  public async findAll(): Promise<Packages[]> {
-    return await this.membersRepository.find();
+  public async findAll(
+    req: Request,
+    getPackagesDto: GetPackagesDto,
+  ): Promise<IPagination<Packages>> {
+    const searchableFields = [
+      'name',
+      'package_type',
+      'point',
+      'family_group',
+      'circle_group',
+    ];
+
+    const { page, limit, search, ...filters } = getPackagesDto;
+    const members = this.dataQueryService.dataQuery({
+      paginationQuery: {
+        limit,
+        page,
+        search,
+        filters,
+      },
+      searchableFields,
+      repository: this.packagesRepository,
+    });
+
+    return members;
   }
 
   public async findOne(id: number) {
-    const packages = this.membersRepository.findOne({ where: { id } });
+    const packages = this.packagesRepository.findOne({ where: { id } });
     if (!packages) {
       throw new NotFoundException('Packages not found');
     }
@@ -44,7 +71,8 @@ export class PackagesService {
       throw new BadRequestException('User ID is required.');
     }
     // Fetch the existing Packages
-    const packages = await this.findOne(id);
+    // Fetch the existing member
+    const packages = await this.packagesRepository.findOneBy({ id });
     // Check if the packages exists
     if (!packages) {
       throw new NotFoundException('Packages not found');
@@ -54,7 +82,7 @@ export class PackagesService {
     Object.assign(packages, updatePackageDto);
 
     // Save and return the updated packages
-    return await this.membersRepository.save(packages);
+    return await this.packagesRepository.save(packages);
   }
 
   public async remove(id: number): Promise<{ message: string }> {
@@ -62,7 +90,7 @@ export class PackagesService {
     if (!packages) {
       throw new NotFoundException('Packages not found');
     }
-    await this.membersRepository.remove(packages);
+    await this.packagesRepository.remove(packages);
     return { message: 'Packages has been deleted successfully.' };
   }
 }

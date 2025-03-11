@@ -52,27 +52,44 @@ export class MembersService {
     const searchableFields = ['status', 'group_name'];
 
     // define relations
-    const relations = ['added_by', 'user_id', 'group_id'];
+    const relations = ['user', 'group'];
     const { page, limit, search, ...filters } = getMemberDto;
-    // Fetch groups with related user
 
-    const members = this.dataQueryService.dataQuery(
-      {
+    const selectRelations = ['user.name', 'group.name'];
+
+    const members = this.dataQueryService.dataQuery({
+      paginationQuery: {
         limit,
         page,
         search,
         filters,
       },
       searchableFields,
-      this.membersRepository,
+      repository: this.membersRepository,
       relations,
-    );
+      selectRelations,
+    });
 
     return members;
   }
 
   public async findOne(id: number): Promise<Member> {
-    const member = await this.membersRepository.findOne({ where: { id } });
+    const member = await this.membersRepository.findOne({
+      where: { id },
+      relations: ['group', 'user'],
+      select: {
+        id: true,
+        group_id: true,
+        user_id: true,
+        status: true,
+        group: {
+          name: true,
+        },
+        user: {
+          name: true,
+        },
+      },
+    });
     if (!member) {
       throw new NotFoundException('Member not found');
     }
@@ -89,10 +106,11 @@ export class MembersService {
     }
 
     // Fetch the existing member
-    const member = await this.findOne(id);
+    const member = await this.membersRepository.findOneBy({ id });
+
     // Check if the member exists
     if (!member) {
-      throw new NotFoundException(`Group with ID ${id} not found`);
+      throw new NotFoundException(`Member dose not found`);
     }
     // Update the member properties using Object.assign
     Object.assign(member, updateMemberDto);

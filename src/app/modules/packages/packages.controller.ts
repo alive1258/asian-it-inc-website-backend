@@ -8,11 +8,13 @@ import {
   Delete,
   Req,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { PackagesService } from './packages.service';
 import { CreatePackageDto } from './dto/create-package.dto';
 import { UpdatePackageDto } from './dto/update-package.dto';
 import { ApiOperation, ApiParam, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import { GetPackagesDto } from './dto/get.packages.dto';
 
 @Controller('packages')
 export class PackagesController {
@@ -61,8 +63,8 @@ export class PackagesController {
   @ApiOperation({
     summary: 'Get all the Packages data.',
   })
-  findAll() {
-    return this.packagesService.findAll();
+  findAll(@Req() req: Request, @Query() getPackagesDto: GetPackagesDto) {
+    return this.packagesService.findAll(req, getPackagesDto);
   }
 
   /**

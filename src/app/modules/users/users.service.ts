@@ -18,6 +18,9 @@ import { CreateUserProvider } from './providers/create-user.provider';
 import { FindOneUserByEmailProvider } from './providers/find-one-user-by-email.provider';
 import { HashingProvider } from 'src/app/auth/providers/hashing.provider';
 import { classToPlain } from 'class-transformer';
+import { GetUsersDto } from './dto/get-users.dto';
+import { IPagination } from 'src/app/common/data-query/pagination.interface';
+import { DataQueryService } from 'src/app/common/data-query/data-query.service';
 
 @Injectable()
 export class UsersService {
@@ -37,6 +40,7 @@ export class UsersService {
     private readonly hashingProvider: HashingProvider,
     //inject findOneByEmailProvider
     private readonly findOneByEmailProvider: FindOneUserByEmailProvider,
+    private readonly dataQueryService: DataQueryService,
   ) {}
 
   //Create New user
@@ -44,30 +48,31 @@ export class UsersService {
     return await this.createUserProvider.createUser(req, createUserDto);
   }
 
-  /**
-   * Get all users.
-   */
-  public async findAll() {
-    try {
-      // Fetch all users from the repository
-      const users = await this.usersRepository.find();
+  public async findAll(
+    req: Request,
+    getUsersDto: GetUsersDto,
+  ): Promise<IPagination<User>> {
+    // define searchableFields
+    const searchableFields = ['email', 'mobile', 'name'];
 
-      // If no users are found, throw a NotFoundException
-      if (!users || users.length === 0) {
-        throw new NotFoundException('No users found.');
-      }
+    // define relations
 
-      return users;
-    } catch (error) {
-      // Handle errors such as database connection issues
-      throw new RequestTimeoutException(
-        `We are currently experiencing a temporary issue processing your request. Please try again later.`,
-        {
-          description:
-            'Error connecting to the Database. Please try again later',
-        },
-      );
-    }
+    const { page, limit, search, ...filters } = getUsersDto;
+    // Fetch groups with related user
+    filters.is_verified = true;
+
+    const members = this.dataQueryService.dataQuery({
+      paginationQuery: {
+        limit,
+        page,
+        search,
+        filters,
+      },
+      searchableFields,
+      repository: this.usersRepository,
+    });
+
+    return members;
   }
 
   /**

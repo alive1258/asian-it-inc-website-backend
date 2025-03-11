@@ -1,5 +1,6 @@
 import { IntersectionType } from '@nestjs/swagger';
-import { IsDate, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsDate, IsOptional, IsString } from 'class-validator';
+import { PaginationQueryDto } from 'src/app/common/data-query/dto/data-query.dto';
 
 class GetUsersBaseDto {
   @IsString()
@@ -14,6 +15,10 @@ class GetUsersBaseDto {
   @IsOptional()
   mobile?: string;
 
+  @IsBoolean()
+  @IsOptional()
+  is_verified?: boolean;
+
   @IsDate()
   @IsOptional()
   startDate?: Date;
@@ -23,4 +28,7 @@ class GetUsersBaseDto {
   endDate?: Date;
 }
 
-export class GetUsersDto extends IntersectionType(GetUsersBaseDto) {}
+export class GetUsersDto extends IntersectionType(
+  GetUsersBaseDto,
+  PaginationQueryDto,
+) {}

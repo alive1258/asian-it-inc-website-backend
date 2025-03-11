@@ -10,14 +10,16 @@ import {
   ClassSerializerInterceptor,
   ParseIntPipe,
   Req,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Auth } from 'src/app/auth/decorators/auth.decorator';
 import { AuthType } from 'src/app/auth/enums/auth-type.enum';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
+import { GetUsersDto } from './dto/get-users.dto';
 
 /**
  * UsersController handles all user-related API endpoints.
@@ -53,9 +55,40 @@ export class UsersController {
    * Retrieves all users from the database.
 
    */
+  // @Get()
+  // findAll() {
+  //   return this.usersService.findAll();
+  // }
+  /**
+   * Get all Member controller
+   */
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  @ApiQuery({
+    name: 'limit',
+    type: 'string',
+    required: false,
+    description: 'The number of entries returned per query',
+    example: '10',
+  })
+  @ApiQuery({
+    name: 'page',
+    type: 'string',
+    required: false,
+    description: 'The page that wanted.',
+    example: '1',
+  })
+  @ApiQuery({
+    name: 'search',
+    type: 'string',
+    required: false,
+    description: 'Search anything that you want.',
+    example: 'First',
+  })
+  @ApiOperation({
+    summary: 'Get all the Member data.',
+  })
+  findAll(@Req() req: Request, @Query() getUsersDto: GetUsersDto) {
+    return this.usersService.findAll(req, getUsersDto);
   }
 
   /**

@@ -23,8 +23,8 @@ export class Groups {
   group_type_id: number;
 
   @ManyToOne(() => GroupType)
-  @JoinColumn({ name: 'group_type' })
-  groupType: GroupType;
+  @JoinColumn({ name: 'group_type_id' })
+  group_type: GroupType;
 
   @Column({ type: 'time' })
   check_in_time: Date;

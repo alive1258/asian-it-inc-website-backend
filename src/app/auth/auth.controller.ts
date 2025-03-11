@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   HttpCode,
@@ -14,6 +15,7 @@ import { AuthType } from './enums/auth-type.enum';
 
 import { UserOTPDto } from './dtos/user-otp.dto';
 import { Request } from 'express';
+import { UpdateUserDto } from '../modules/users/dto/update-user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -38,6 +40,24 @@ export class AuthController {
     return await this.authService.signIn(signInDto);
   }
 
+  /**
+   * Sign-out controller
+   */
+  @Post('sign-out')
+  @ApiOperation({
+    summary: 'Sing-Out',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Signed out successfully.',
+  })
+  @HttpCode(HttpStatus.OK)
+  public logOut() {
+    // cookies are cleared in data interceptor.
+    return {
+      message: 'Successfully signed out.',
+    };
+  }
   @Post('refresh-token')
   @HttpCode(HttpStatus.OK)
   @Auth(AuthType.None)
@@ -80,5 +100,45 @@ export class AuthController {
     @Body() { userId, mobile }: { userId: string; mobile: string },
   ) {
     return this.authService.resendOTP(userId, mobile);
+  }
+
+  /**
+   * Forget Password controller
+   */
+  @Post('/forget-password')
+  @ApiOperation({
+    summary: 'Forget Password',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Data fetched successfully.',
+  })
+  public forgetPassword(
+    @Body() { userId, mobile }: { userId: string; mobile: string },
+  ) {
+    return this.authService.forgetPassword(userId, mobile);
+  }
+
+  /**
+   * Reset Password controller
+   */
+  @Post('/reset-password')
+  @ApiOperation({
+    summary: 'Reset Password',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Data fetched successfully.',
+  })
+  public resetPassword(
+    @Body() updateUserDto: UpdateUserDto,
+    @Req() req: Request,
+  ) {
+    const id = req.user?.sub;
+    if (!id) {
+      throw new BadRequestException('User ID is missing.');
+    }
+
+    return this.authService.resetPassword(updateUserDto, id);
   }
 }

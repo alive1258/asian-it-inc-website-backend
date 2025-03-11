@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  RequestTimeoutException,
+} from '@nestjs/common';
 import { SignInDto } from './dtos/signin.dto';
 import { SignInProvider } from './providers/sign-in.provider';
 import { RefreshTokensProvider } from './providers/refresh-tokens.provider';
@@ -7,6 +12,7 @@ import { VerifyOTPProvider } from './providers/veryfy-otp.provider';
 import { UsersService } from '../modules/users/users.service';
 import { OtpService } from '../common/otp-send/otp-send.service';
 import { Request } from 'express';
+import { UpdateUserDto } from '../modules/users/dto/update-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -74,5 +80,39 @@ export class AuthService {
     //resend the otp
     const result = await this.otpService.reSendOtp(user);
     return result;
+  }
+
+  // forget password
+  public async forgetPassword(userId: string, mobile: string) {
+    if (!userId || !mobile) {
+      throw new BadRequestException('Empty otp details are not allowed.');
+    }
+    // find user from database
+    const user = await this.usersService.findOneById(userId);
+
+    if (!user) {
+      throw new NotFoundException("User couldn't found! Check your email.");
+    }
+
+    try {
+      const otpData = await this.otpService.reSendOtp(user);
+      return otpData;
+    } catch (error) {
+      throw new RequestTimeoutException(error, {
+        description: 'The error from mail send.',
+      });
+    }
+  }
+
+  // reset password
+  public async resetPassword(updateUserDto: UpdateUserDto, id: string) {
+    //find the user from database
+    const user = await this.usersService.findOne(id);
+
+    if (!user) {
+      throw new NotFoundException('User does not exist.');
+    }
+
+    return this.usersService.update(id, updateUserDto);
   }
 }

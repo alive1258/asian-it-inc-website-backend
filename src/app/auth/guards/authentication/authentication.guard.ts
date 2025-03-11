@@ -1,6 +1,7 @@
 import {
   CanActivate,
   ExecutionContext,
+  ForbiddenException,
   Inject,
   Injectable,
   UnauthorizedException,
@@ -49,7 +50,7 @@ export class AuthenticationGuard implements CanActivate {
 
     // If no token is provided, deny access
     if (!token) {
-      throw new UnauthorizedException('Access token is missing');
+      throw new ForbiddenException('Access token is missing');
     }
     try {
       // Verify and decode the JWT token
@@ -60,7 +61,7 @@ export class AuthenticationGuard implements CanActivate {
       request[REQUEST_USER_KEY] = payload;
     } catch {
       // Handle JWT verification errors (e.g., expired or invalid token)
-      throw new UnauthorizedException('Invalid or expired access token');
+      throw new ForbiddenException('Invalid or expired access token');
     }
     // Allow request to proceed
     return true;

@@ -21,6 +21,7 @@ import { InitialAuthenticationGuard } from './app/auth/guards/authentication/ini
 import { MembersModule } from './app/modules/members/members.module';
 import { PackagesModule } from './app/modules/packages/packages.module';
 import { PointsModule } from './app/modules/points/points.module';
+import { DataQueryModule } from './app/common/data-query/data-query.module';
 
 /**
  * user Created Modules
@@ -59,6 +60,7 @@ const ENV = process.env.NODE_ENV;
     MembersModule,
     PackagesModule,
     PointsModule,
+    DataQueryModule,
   ],
   controllers: [AppController],
   providers: [

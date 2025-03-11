@@ -8,12 +8,14 @@ import {
   Delete,
   Req,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { MembersService } from './members.service';
 import { CreateMemberDto } from './dto/create-member.dto';
 import { UpdateMemberDto } from './dto/update-member.dto';
 import { ApiOperation, ApiParam, ApiQuery, ApiResponse } from '@nestjs/swagger';
-
+import { Request } from 'express';
+import { GetMemberDto } from './dto/get-members.dto';
 @Controller('members')
 export class MembersController {
   constructor(private readonly membersService: MembersService) {}
@@ -29,7 +31,7 @@ export class MembersController {
     status: 201,
     description: 'Member  Data created successfully.',
   })
-  create(@Req() req, @Body() createMemberDto: CreateMemberDto) {
+  create(@Req() req: Request, @Body() createMemberDto: CreateMemberDto) {
     return this.membersService.create(req, createMemberDto);
   }
 
@@ -61,8 +63,8 @@ export class MembersController {
   @ApiOperation({
     summary: 'Get all the Member data.',
   })
-  findAll() {
-    return this.membersService.findAll();
+  findAll(@Req() req: Request, @Query() getMemberDto: GetMemberDto) {
+    return this.membersService.findAll(req, getMemberDto);
   }
 
   /**

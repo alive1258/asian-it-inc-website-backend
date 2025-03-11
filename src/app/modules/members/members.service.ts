@@ -10,35 +10,65 @@ import { UpdateMemberDto } from './dto/update-member.dto';
 import { Member } from './entities/member.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Request } from 'express';
+import { IPagination } from 'src/app/common/data-query/pagination.interface';
+import { GetMemberDto } from './dto/get-members.dto';
+import { DataQueryService } from 'src/app/common/data-query/data-query.service';
 
 @Injectable()
 export class MembersService {
   constructor(
     @InjectRepository(Member)
     private readonly membersRepository: Repository<Member>,
+
+    private readonly dataQueryService: DataQueryService,
   ) {}
   public async create(
-    req: any,
+    req: Request,
     createMemberDto: CreateMemberDto,
   ): Promise<Member> {
-    const id = req.user.sub;
-    if (!id) {
+    const user_id = req?.user?.sub;
+    if (!user_id) {
       throw new BadRequestException('User ID is required.');
+    }
+    const existMember = await this.membersRepository.findOne({
+      where: { user_id: +user_id, group_id: createMemberDto.group_id },
+    });
+    if (existMember) {
+      throw new BadRequestException('Member already exist.');
     }
     const member = this.membersRepository.create({
       ...createMemberDto,
-      added_by: id,
+      added_by: +user_id,
     });
     return await this.membersRepository.save(member);
   }
 
-  public async findAll() {
-    // Fetch groups with related user
-    const groups = await this.membersRepository.find({
-      relations: ['user', 'group', 'added_user'],
-    });
+  public async findAll(
+    req: Request,
+    getMemberDto: GetMemberDto,
+  ): Promise<IPagination<Member>> {
+    // define searchableFields
+    const searchableFields = ['status', 'group_name'];
 
-    return groups;
+    // define relations
+    const relations = ['added_by', 'user_id', 'group_id'];
+    const { page, limit, search, ...filters } = getMemberDto;
+    // Fetch groups with related user
+
+    const members = this.dataQueryService.dataQuery(
+      {
+        limit,
+        page,
+        search,
+        filters,
+      },
+      searchableFields,
+      this.membersRepository,
+      relations,
+    );
+
+    return members;
   }
 
   public async findOne(id: number): Promise<Member> {

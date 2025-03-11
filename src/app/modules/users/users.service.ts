@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
   RequestTimeoutException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -92,8 +93,17 @@ export class UsersService {
   }
 
   // Find a single user by email
-  public async findOneByEmail(email: string) {
-    return await this.findOneByEmailProvider.findOneByEmail(email);
+  public async findOneByEmail(email: string): Promise<User> {
+    const user = await this.usersRepository.findOne({
+      where: { email },
+    });
+
+    // Throw error if user not found
+    if (!user) {
+      throw new UnauthorizedException('User does not exist');
+    }
+
+    return user;
   }
 
   //   Find a user by Id

@@ -48,7 +48,18 @@ export class GroupsService {
   public async findAll() {
     // Fetch groups with related user
     const groups = await this.groupRepository.find({
-      relations: ['user'],
+      relations: ['group_type'],
+      // select: ['id', 'name', 'group_type_id','group_type.name', 'check_in_time', 'check_out_time'],
+      select: {
+        id: true,
+        name: true,
+        group_type_id: true,
+        check_in_time: true,
+        check_out_time: true,
+        group_type: {
+          name: true,
+        },
+      },
     });
 
     return groups;
@@ -56,7 +67,10 @@ export class GroupsService {
 
   /** Retrieve a single group by ID */
   public async findOne(id: number): Promise<Groups> {
-    const group = await this.groupRepository.findOne({ where: { id } });
+    const group = await this.groupRepository.findOne({
+      where: { id },
+      relations: ['group_type'],
+    });
     if (!group) {
       throw new NotFoundException('Group not found');
     }

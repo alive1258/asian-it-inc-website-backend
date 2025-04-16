@@ -72,6 +72,7 @@ export class GenerateTokensProvider {
       this.jwtConfigService.accessTokenTtl,
       {
         email: user.email,
+        role: 'super-admin',
       },
     );
   }
@@ -82,6 +83,7 @@ export class GenerateTokensProvider {
       this.jwtConfigService.refreshTokenTtl,
       {
         email: user.email,
+        role: 'super-admin',
       },
     );
   }

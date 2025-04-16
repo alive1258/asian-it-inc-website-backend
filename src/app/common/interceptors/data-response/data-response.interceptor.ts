@@ -20,8 +20,9 @@ export class DataResponseInterceptor implements NestInterceptor {
     return next.handle().pipe(
       map((data) => {
         // Set cookie only for login or refresh-token or verifyOTP route
+
         if (request.path === '/api/v1/auth/verify-otp') {
-          response.cookie('refreshToken', data?.tokens?.refreshToken, {
+          response.cookie('refreshToken', data?.refreshToken, {
             httpOnly: true,
             sameSite: 'none',
             // domain: 'softxbd.com',
@@ -29,7 +30,7 @@ export class DataResponseInterceptor implements NestInterceptor {
             secure: true,
             maxAge: 1000 * 60 * 60 * 24 * 1, // (1 day in milliseconds)
           });
-          response.cookie('accessToken', data?.tokens?.accessToken, {
+          response.cookie('accessToken', data?.accessToken, {
             httpOnly: true,
             sameSite: 'none',
             // domain: 'softxbd.com',
@@ -39,29 +40,29 @@ export class DataResponseInterceptor implements NestInterceptor {
           });
 
           // remove refresh token tokens
-          delete data.tokens;
+          delete data.refreshToken;
         }
-        if (request.path === '/api/v1/auth/sign-in') {
-          response.cookie('refreshToken', data?.tokens?.refreshToken, {
-            httpOnly: true,
-            sameSite: 'none',
-            // domain: 'softxbd.com',
-            path: '/',
-            secure: true,
-            maxAge: 1000 * 60 * 60 * 24 * 1, // (1 day in milliseconds)
-          });
-          response.cookie('accessToken', data?.tokens?.accessToken, {
-            httpOnly: true,
-            sameSite: 'none',
-            // domain: 'softxbd.com',
-            path: '/',
-            secure: true,
-            maxAge: 1000 * 60 * 60 * 1, // (1 hour in milliseconds)
-          });
+        // if (request.path === '/api/v1/auth/sign-in') {
+        //   response.cookie('refreshToken', data?.tokens?.refreshToken, {
+        //     httpOnly: true,
+        //     sameSite: 'none',
+        //     // domain: 'softxbd.com',
+        //     path: '/',
+        //     secure: true,
+        //     maxAge: 1000 * 60 * 60 * 24 * 1, // (1 day in milliseconds)
+        //   });
+        //   response.cookie('accessToken', data?.tokens?.accessToken, {
+        //     httpOnly: true,
+        //     sameSite: 'none',
+        //     // domain: 'softxbd.com',
+        //     path: '/',
+        //     secure: true,
+        //     maxAge: 1000 * 60 * 60 * 1, // (1 hour in milliseconds)
+        //   });
 
-          // remove refresh token tokens
-          delete data.tokens;
-        }
+        //   // remove refresh token tokens
+        //   delete data.tokens;
+        // }
 
         // set token when hit refresh token
         if (request.path === '/api/v1/auth/refresh-token') {

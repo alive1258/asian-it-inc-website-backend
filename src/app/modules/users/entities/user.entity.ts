@@ -34,6 +34,14 @@ export class User {
   email: string;
 
   /**
+   * Role
+   */
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  role?: string;
+  /**
    * Email Verified At
    */
   @Column({ type: 'timestamp', nullable: true })

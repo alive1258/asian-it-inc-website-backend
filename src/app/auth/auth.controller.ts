@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -9,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dtos/signin.dto';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Auth } from './decorators/auth.decorator';
 import { AuthType } from './enums/auth-type.enum';
 
@@ -18,6 +19,7 @@ import { Request } from 'express';
 import { UpdateUserDto } from '../modules/users/dto/update-user.dto';
 
 @Controller('auth')
+@ApiTags('Auth')
 export class AuthController {
   constructor(
     /**
@@ -26,7 +28,7 @@ export class AuthController {
     private readonly authService: AuthService,
   ) {}
 
-  @Post('sign-in')
+  @Post('/sign-in')
   @HttpCode(HttpStatus.OK)
   @Auth(AuthType.None)
   @ApiOperation({
@@ -140,5 +142,16 @@ export class AuthController {
     }
 
     return this.authService.resetPassword(updateUserDto, id);
+  }
+
+  /**
+   * Get me controller
+   */
+  @Get('/get-me')
+  @ApiOperation({
+    summary: 'Get single data.',
+  })
+  getMe(@Req() req: Request) {
+    return this.authService.getMe(req);
   }
 }

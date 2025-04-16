@@ -13,6 +13,10 @@ class GetUsersBaseDto {
 
   @IsString()
   @IsOptional()
+  role?: string;
+
+  @IsString()
+  @IsOptional()
   mobile?: string;
 
   @IsBoolean()

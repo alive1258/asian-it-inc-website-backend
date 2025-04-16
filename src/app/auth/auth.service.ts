@@ -13,6 +13,7 @@ import { UsersService } from '../modules/users/users.service';
 import { OtpService } from '../common/otp-send/otp-send.service';
 import { Request } from 'express';
 import { UpdateUserDto } from '../modules/users/dto/update-user.dto';
+import { User } from '../modules/users/entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -114,5 +115,31 @@ export class AuthService {
     }
 
     return this.usersService.update(id, updateUserDto);
+  }
+
+  /**
+   * Get me
+   */
+  public async getMe(req: Request): Promise<{ user: User }> {
+    // get user id , company id and branch id from request
+    // const { sub: user_id } = req?.user;
+    const user_id = req?.user?.sub;
+    // if (req?.user && 'sub' in req?.user) {
+    //   const user_id = req.user.sub;
+    //   // ...
+    // }
+
+    if (!user_id) {
+      throw new BadRequestException('You have to Sign in.');
+    }
+    let result = {} as any;
+    // Fetch user with valid relations
+    const user = await this.usersService.findOneForResendOTP(user_id);
+
+    result.user = user;
+
+    return {
+      user: result?.user,
+    };
   }
 }

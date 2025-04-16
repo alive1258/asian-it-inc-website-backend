@@ -97,6 +97,29 @@ export class UsersService {
     return user;
   }
 
+  /**
+   * Get single user
+   */
+  public async findOneForResendOTP(id: string): Promise<User> {
+    // Validate the ID
+    if (!id) {
+      throw new BadRequestException('You have to provide User ID.');
+    }
+
+    // Fetch user with valid relations
+    const user = await this.usersRepository.findOne({
+      where: { id },
+      select: ['id', 'name', 'email', 'mobile', 'role'],
+    });
+
+    // Throw error if user not found
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user;
+  }
+
   // Find a single user by email
   public async findOneByEmail(email: string): Promise<User> {
     const user = await this.usersRepository.findOne({

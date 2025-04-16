@@ -10,6 +10,7 @@ import * as bcrypt from 'bcrypt';
 import { GenerateTokensProvider } from './generate-tokens.provider';
 import { UserOTPDto } from '../dtos/user-otp.dto';
 import { OtpService } from 'src/app/common/otp-send/otp-send.service';
+import { MailService } from 'src/app/modules/mail/mail.service';
 
 @Injectable()
 export class VerifyOTPProvider {
@@ -23,7 +24,8 @@ export class VerifyOTPProvider {
     // inject generateTokenProvider
     private readonly generateTokensProvider: GenerateTokensProvider,
 
-    private readonly otpService: OtpService,
+    // private readonly otpService: OtpService,
+    private readonly mailService: MailService,
   ) {}
 
   public async verifyOTP(userOTPDto: UserOTPDto) {
@@ -38,8 +40,13 @@ export class VerifyOTPProvider {
       throw new NotFoundException('User not found.');
     }
 
-    // get the userOTP dat from database
-    const userOTPRecords = await this.otpService.findManyWithId(
+    // // get the userOTP dat from database
+    // const userOTPRecords = await this.otpService.findManyWithId(
+    //   userOTPDto.user_id,
+    // );
+
+    // get the userOTP data from database
+    const userOTPRecords = await this.mailService.findManyWithId(
       userOTPDto.user_id,
     );
 
@@ -70,7 +77,8 @@ export class VerifyOTPProvider {
     await this.usersService.update(user.id, user);
 
     //send welcome sms
-    await this.otpService.sendWelcomeSms(user);
+    // await this.otpService.sendWelcomeSms(user);
+    await this.mailService.sendWelcomeMail(user);
 
     const tokens = await this.generateTokensProvider.generateTokens(user);
 

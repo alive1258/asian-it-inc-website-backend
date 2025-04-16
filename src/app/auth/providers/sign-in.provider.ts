@@ -2,6 +2,7 @@ import {
   forwardRef,
   Inject,
   Injectable,
+  NotFoundException,
   RequestTimeoutException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -10,6 +11,7 @@ import { HashingProvider } from './hashing.provider';
 import { SignInDto } from '../dtos/signin.dto';
 
 import { GenerateTokensProvider } from './generate-tokens.provider';
+import { MailService } from 'src/app/modules/mail/mail.service';
 
 @Injectable()
 export class SignInProvider {
@@ -23,14 +25,23 @@ export class SignInProvider {
     // Inject hashingPassword
     private readonly hashingProvider: HashingProvider,
 
-    // inject generateTokenProvider
-    private readonly generateTokensProvider: GenerateTokensProvider,
+    private readonly mailService: MailService,
   ) {}
 
   public async signIn(signInDto: SignInDto) {
-    //throw an exception user not found
+    // 1. Find user by email
+
     let user = await this.usersService.findOneByEmail(signInDto.email);
 
+    //throw an exception user not found
+    if (!user) {
+      throw new NotFoundException("User couldn't found! Check your email.");
+    }
+
+    // 2. Check if user is verified
+    if (user.is_verified === false) {
+      throw new NotFoundException('User is not verified.');
+    }
     //compare password to the hash
     let isEqual: boolean = false;
     try {
@@ -47,8 +58,17 @@ export class SignInProvider {
     if (!isEqual) {
       throw new UnauthorizedException('Incorrect password');
     }
-    const result = await this.generateTokensProvider.generateTokens(user);
 
-    return { tokens: result };
+    // 4. If login successful, resend OTP
+    const result = await this.mailService.resendOtp(user);
+    return result;
+
+    // const result = await this.generateTokensProvider.generateTokens(user);
+
+    // 5. Return a message (no tokens yet, because OTP verification pending)
+    // return {
+    //   message:
+    //     'OTP has been sent to your email. Please verify the OTP to complete login.',
+    // };
   }
 }

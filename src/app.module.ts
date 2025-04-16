@@ -22,6 +22,8 @@ import { MembersModule } from './app/modules/members/members.module';
 import { PackagesModule } from './app/modules/packages/packages.module';
 import { PointsModule } from './app/modules/points/points.module';
 import { DataQueryModule } from './app/common/data-query/data-query.module';
+import { MailModule } from './app/modules/mail/mail.module';
+import { PricingModule } from './app/modules/pricing/pricing.module';
 
 /**
  * user Created Modules
@@ -61,6 +63,8 @@ const ENV = process.env.NODE_ENV;
     PackagesModule,
     PointsModule,
     DataQueryModule,
+    MailModule,
+    PricingModule,
   ],
   controllers: [AppController],
   providers: [

@@ -38,7 +38,9 @@ export class PackagesController {
   /**
    * Get all Packages controller
    */
-  @Get()
+
+  @Get('/all-packages')
+  // @Get('/all-packages')
   @ApiQuery({
     name: 'limit',
     type: 'string',

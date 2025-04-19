@@ -29,7 +29,7 @@ export class MembersService {
   ): Promise<Member> {
     const user_id = req?.user?.sub;
     if (!user_id) {
-      throw new BadRequestException('User ID is required.');
+      throw new BadRequestException('User ID is required.You have to sing in!');
     }
     const existMember = await this.membersRepository.findOne({
       where: { user_id: +user_id, group_id: createMemberDto.group_id },

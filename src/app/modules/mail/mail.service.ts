@@ -76,6 +76,7 @@ export class MailService {
     //generate random otp
 
     const otp_code = Math.floor(1000 + Math.random() * 9000).toString();
+    console.log(otp_code);
 
     // find old otp
     let existOtp: OTP | null = null;
@@ -128,12 +129,13 @@ export class MailService {
      <p style="font-size: 14px; color: #555;">Please use this OTP to complete your verification process.</p>
    </div>
  `;
+    console.log(otp_code);
 
-    await this.sendEmail({
-      to: user.email,
-      subject: 'Verify Your OTP',
-      html: htmlContent,
-    });
+    // await this.sendEmail({
+    //   to: user.email,
+    //   subject: 'Verify Your OTP',
+    //   html: htmlContent,
+    // });
 
     return existOtp;
   }
@@ -149,11 +151,11 @@ export class MailService {
     </div>
   `;
 
-    await this.sendEmail({
-      to: user.email,
-      subject: 'Verify Your OTP',
-      html: htmlContent,
-    });
+    // await this.sendEmail({
+    //   to: user.email,
+    //   subject: 'Verify Your OTP',
+    //   html: htmlContent,
+    // });
   }
 
   /**

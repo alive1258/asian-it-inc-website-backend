@@ -24,15 +24,20 @@ import { PointsModule } from './app/modules/points/points.module';
 import { DataQueryModule } from './app/common/data-query/data-query.module';
 import { MailModule } from './app/modules/mail/mail.module';
 import { PricingModule } from './app/modules/pricing/pricing.module';
+import { FaqsModule } from './app/modules/faqs/faqs.module';
+import { FileUploadsModule } from './app/common/file-uploads/file-uploads.modules';
+import { TestimonialsModule } from './app/modules/testimonials/testimonials.module';
+import { FaqAnsModule } from './app/modules/faq-ans/faq-ans.module';
 
 /**
- * user Created Modules
+ * // Get environment (development/production/etc.)
  *
  */
 const ENV = process.env.NODE_ENV;
 
 @Module({
   imports: [
+    // Load environment variables and global configs
     UsersModule,
     ConfigModule.forRoot({
       isGlobal: true,
@@ -40,6 +45,8 @@ const ENV = process.env.NODE_ENV;
       load: [appConfig, databaseConfig, profileConfig],
       validationSchema: environmentValidation,
     }),
+
+    // Database connection with async configuration
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -54,8 +61,11 @@ const ENV = process.env.NODE_ENV;
         synchronize: ConfigService.get('database.synchronize'),
       }),
     }),
+
+    // JWT authentication module setup
     ConfigModule.forFeature(jwtConfig),
     JwtModule.registerAsync(jwtConfig.asProvider()),
+    // Feature modules
     AttendanceModule,
     GroupTypesModule,
     GroupsModule,
@@ -65,10 +75,15 @@ const ENV = process.env.NODE_ENV;
     DataQueryModule,
     MailModule,
     PricingModule,
+    FaqsModule,
+    FileUploadsModule,
+    TestimonialsModule,
+    FaqAnsModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
+    // Global Guards
     {
       provide: APP_GUARD,
       useClass: InitialAuthenticationGuard,
@@ -77,18 +92,20 @@ const ENV = process.env.NODE_ENV;
       provide: APP_GUARD,
       useClass: AuthenticationGuard,
     },
+    // Global Interceptors
     {
       provide: APP_INTERCEPTOR,
-      useClass: ClassSerializerInterceptor,
+      useClass: ClassSerializerInterceptor, // For response serialization
     },
 
     {
       provide: APP_INTERCEPTOR,
       useClass: DataResponseInterceptor,
     },
+    // Global Error Filter
     {
       provide: APP_FILTER,
-      useClass: DatabaseExceptionFilter,
+      useClass: DatabaseExceptionFilter, // Custom database exception handling
     },
   ],
 })

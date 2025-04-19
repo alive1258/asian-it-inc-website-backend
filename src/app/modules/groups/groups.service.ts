@@ -11,7 +11,6 @@ import { UpdateGroupDto } from './dto/update-group.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Groups } from './entities/group.entity';
 import { Repository } from 'typeorm';
-import { classToPlain, instanceToPlain } from 'class-transformer';
 
 @Injectable()
 export class GroupsService {
@@ -27,7 +26,7 @@ export class GroupsService {
   ): Promise<Groups> {
     const id = req.user.sub;
     if (!id) {
-      throw new BadRequestException('User ID is required.');
+      throw new BadRequestException('You have to sing in!');
     }
 
     // Validate check_in_time and check_out_time format

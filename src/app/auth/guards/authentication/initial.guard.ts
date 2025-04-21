@@ -49,6 +49,7 @@ export class InitialAuthenticationGuard implements CanActivate {
           token,
           this.jwtConfiguration,
         );
+
         // Store decoded user data in request under a custom key
         request[REQUEST_USER_KEY] = payload;
       } catch (error) {

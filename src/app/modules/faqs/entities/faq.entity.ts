@@ -2,12 +2,9 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
-  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { User } from '../../users/entities/user.entity';
 
 @Entity({ name: 'faqs' })
 export class Faq {
@@ -23,7 +20,6 @@ export class Faq {
   @Column({
     type: 'varchar',
     nullable: false,
-    length: 128,
   })
   headline: string;
 

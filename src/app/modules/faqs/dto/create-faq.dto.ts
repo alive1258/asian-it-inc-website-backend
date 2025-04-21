@@ -11,7 +11,6 @@ export class CreateFaqDto {
   })
   @IsString()
   @IsNotEmpty()
-  @MaxLength(128)
   headline: string;
 
   /**

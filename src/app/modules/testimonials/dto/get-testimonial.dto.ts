@@ -11,35 +11,35 @@ class GetTestimonialsBaseDto {
    */
   @IsString()
   @IsOptional()
-  name?: string;
+  'name'?: string;
 
   /**
    * Filter by customer photo filename or URL (optional)
    */
   @IsString()
   @IsOptional()
-  photo?: string;
+  'photo'?: string;
 
   /**
    * Filter by customer review rating (optional)
    */
   @IsNumber()
   @IsOptional()
-  review?: number;
+  'review'?: number;
 
   /**
    * Filter by customer designation (optional)
    */
   @IsString()
   @IsOptional()
-  designation?: string;
+  'designation'?: string;
 
   /**
    * Filter by customer message/testimonial (optional)
    */
   @IsString()
   @IsOptional()
-  massage?: string;
+  'massage'?: string;
 }
 
 /**

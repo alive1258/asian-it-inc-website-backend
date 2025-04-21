@@ -69,6 +69,11 @@ export class Testimonial {
   message: string;
 
   /**
+   * User Id
+   */
+  @Column({ type: 'bigint' })
+  added_by: string;
+  /**
    * Date of creation
    */
   @CreateDateColumn()

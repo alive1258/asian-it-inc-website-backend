@@ -52,7 +52,6 @@ export class CreateTestimonialDto {
   })
   @IsString()
   @IsNotEmpty()
-  @MaxLength(128)
   designation: string;
 
   /**

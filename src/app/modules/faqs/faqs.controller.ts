@@ -16,9 +16,9 @@ import { FaqsService } from './faqs.service';
 import { CreateFaqDto } from './dto/create-faq.dto';
 import { UpdateFaqDto } from './dto/update-faq.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ActiveUser } from 'src/app/auth/decorators/active-user.decorator';
 import { ApiOperation, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { GetFaqDto } from './dto/get-faqs.dto';
+import { Request } from 'express';
 
 @Controller('faqs')
 export class FaqsController {
@@ -27,12 +27,12 @@ export class FaqsController {
   @UseInterceptors(FileInterceptor('photo'))
   @Post()
   create(
-    @ActiveUser('sub') userId: string,
-
+    // @ActiveUser('sub') userId: string,
+    @Req() req: Request,
     @Body() createFaqDto: CreateFaqDto,
     @UploadedFile() file?: Express.Multer.File,
   ) {
-    return this.faqsService.create(userId, createFaqDto, file);
+    return this.faqsService.create(req, createFaqDto, file);
   }
 
   /**
@@ -81,7 +81,7 @@ export class FaqsController {
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.faqsService.findOne(+id);
   }
-
+  @UseInterceptors(FileInterceptor('photo'))
   @Patch(':id')
   @ApiParam({
     name: 'id',
@@ -94,10 +94,11 @@ export class FaqsController {
     summary: 'Update single faq data.',
   })
   update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Body() updateFaqDto: UpdateFaqDto,
+    @UploadedFile() file?: Express.Multer.File,
   ) {
-    return this.faqsService.update(id, updateFaqDto);
+    return this.faqsService.update(id, updateFaqDto, file);
   }
 
   @Delete(':id')

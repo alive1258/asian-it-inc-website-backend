@@ -14,6 +14,7 @@ import {
 } from '@nestjs/common';
 import { GetFaqDto } from './dto/get-faqs.dto';
 import { IPagination } from 'src/app/common/data-query/pagination.interface';
+import { Request } from 'express';
 
 @Injectable()
 export class FaqsService {
@@ -30,11 +31,12 @@ export class FaqsService {
   ) {}
 
   public async create(
-    userId: string,
+    req: Request,
     createFaqDto: CreateFaqDto,
     file?: Express.Multer.File,
   ): Promise<Faq> {
-    const user_id = userId;
+    const user_id = req?.user?.sub;
+
     if (!user_id) {
       throw new BadRequestException('User ID is required.You have to sing in!');
     }
@@ -92,9 +94,10 @@ export class FaqsService {
   }
 
   public async update(
-    @Param('id', ParseIntPipe) id: number,
+    id: string,
     updateFaqDto: UpdateFaqDto,
-  ) {
+    file?: Express.Multer.File,
+  ): Promise<Faq> {
     // validate id
     if (!id) {
       throw new BadRequestException('User ID is required.');
@@ -102,12 +105,25 @@ export class FaqsService {
 
     // Fetch the existing faq
 
-    const faq = await this.faqRepository.findOneBy({ id: id.toString() });
+    const faq = await this.faqRepository.findOneBy({ id });
 
     // Check if the faq exists
     if (!faq) {
       throw new NotFoundException(`Faq dose not found`);
     }
+
+    let photo: string | string[] | undefined;
+    if (file && faq.photo) {
+      photo = await this.fileUploadsService.updateFileUploads({
+        oldFile: faq.photo,
+        currentFile: file,
+      });
+    }
+
+    if (file && !faq.photo) {
+      photo = await this.fileUploadsService.fileUploads(file);
+    }
+    updateFaqDto.photo = photo as string | undefined;
     Object.assign(faq, updateFaqDto);
 
     // Save and return the updated faq

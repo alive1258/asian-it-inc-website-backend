@@ -37,7 +37,7 @@ export class TestimonialsController {
   /**
    * Get all testimonials controller
    */
-  @Get()
+  @Get('/all-testimonials')
   @ApiQuery({
     name: 'limit',
     type: 'string',

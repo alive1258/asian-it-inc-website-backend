@@ -42,7 +42,9 @@ export class AccessTokenGuard implements CanActivate {
       request.path === '/api/v1/auth/verify-otp' ||
       request.path === '/api/v1/auth/resend-otp' ||
       request.path === '/api/v1/packages/all-packages' ||
-      request.path === '/api/v1/testimonials/all-testimonials'
+      request.path === '/api/v1/testimonials/all-testimonials' ||
+      request.path === '/api/v1/faqs/all-faqs' ||
+      request.path === '/api/v1/faq-ans/all-faq-ans'
     ) {
       return true;
     }

@@ -43,7 +43,7 @@ export class FaqAnsController {
   /**
    * Get all faqAns controller
    */
-  @Get()
+  @Get('/all-faq-ans')
   @ApiQuery({
     name: 'limit',
     type: 'string',

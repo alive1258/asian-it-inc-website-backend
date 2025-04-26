@@ -79,7 +79,7 @@ export class FaqAnsService {
     const relations = ['faq'];
 
     const { page, limit, search, ...filters } = getFaqAnswerDto;
-    const selectRelations = ['faq.headline', 'faq.photo'];
+    const selectRelations = ['faq.headline', 'faq.photo', 'faq.id'];
     const faqAns = this.dataQueryService.dataQuery({
       paginationQuery: { limit, page, search, filters },
       searchableFields,

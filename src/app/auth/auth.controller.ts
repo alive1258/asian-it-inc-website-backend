@@ -135,11 +135,8 @@ export class AuthController {
     @Req() req: Request,
   ) {
     const id = req.user?.sub;
-    if (!id) {
-      throw new BadRequestException('User ID is missing.');
-    }
 
-    return this.authService.resetPassword(updateUserDto, id);
+    return this.authService.resetPassword(updateUserDto, id ?? '');
   }
 
   /**

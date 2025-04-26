@@ -128,7 +128,6 @@ export class MailService {
      <p style="font-size: 14px; color: #555;">Please use this OTP to complete your verification process.</p>
    </div>
  `;
-    console.log(otp_code);
 
     await this.sendEmail({
       to: user.email,
@@ -188,7 +187,7 @@ export class MailService {
       const transporter: Transporter =
         await this.mailTransporter.createTransporter();
       const result = await transporter.sendMail({
-        from: from ? `no-reply@${from}` : 'no-reply@asianitinc.com',
+        from: from ? `no-reply@${from}` : 'support@findrmeet.com',
         to,
         subject,
         html,

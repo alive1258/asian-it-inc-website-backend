@@ -160,15 +160,20 @@ export class UsersService {
   // Update a user by ID.
   public async update(id: string, updateUserDto: UpdateUserDto) {
     // Validate the ID
-    if (!id) {
-      throw new BadRequestException('User ID is required.');
-    }
 
     // Check if the user exists
     const existUser = await this.usersRepository.findOneBy({ id });
 
     if (!existUser) {
       throw new NotFoundException(`User with ID ${id} not found.`);
+    }
+
+    // updated password hashing
+    if (updateUserDto?.password) {
+      // If a new password is provided, hash it
+      updateUserDto.password = await this.hashingProvider.hashPassword(
+        updateUserDto.password,
+      );
     }
 
     // Update the user properties

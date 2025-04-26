@@ -14,6 +14,7 @@ import { OtpService } from '../common/otp-send/otp-send.service';
 import { Request } from 'express';
 import { UpdateUserDto } from '../modules/users/dto/update-user.dto';
 import { User } from '../modules/users/entities/user.entity';
+import { MailService } from '../modules/mail/mail.service';
 
 @Injectable()
 export class AuthService {
@@ -37,7 +38,8 @@ export class AuthService {
     /**
      * Inject otpService
      */
-    private readonly otpService: OtpService,
+
+    private readonly mailService: MailService,
   ) {}
 
   /**
@@ -82,27 +84,26 @@ export class AuthService {
     }
 
     //resend the otp
-    const result = await this.otpService.reSendOtp(user);
+    const result = await this.mailService.resendOtp(user);
     return result;
   }
 
   // forget password
   public async forgetPassword(email: string) {
+    if (!email) {
+      throw new BadRequestException(
+        'Authentication failed. User ID or Email does not match.',
+      );
+    }
     // find user from database
     const user = await this.usersService.findOneByEmail(email);
 
     if (!user) {
       throw new NotFoundException("User couldn't found! Check your email.");
     }
-
-    try {
-      const otpData = await this.otpService.reSendOtp(user);
-      return otpData;
-    } catch (error) {
-      throw new RequestTimeoutException(error, {
-        description: 'The error from mail send.',
-      });
-    }
+    //resend the otp
+    const result = await this.mailService.resendOtp(user);
+    return result;
   }
 
   // reset password

@@ -99,7 +99,7 @@ export class OtpService {
 
     try {
       // Send OTP via SMS
-      const result = await this.sendOtpViaSms(user.email, verify_code);
+      await this.sendOtpViaSms(user.email, verify_code);
     } catch (error) {
       console.error('SMS Sending Error:', error);
       throw new RequestTimeoutException(
@@ -129,11 +129,11 @@ export class OtpService {
         );
       }
 
-      if (!response.data.Message_ID) {
-        throw new InternalServerErrorException(
-          'Message ID is missing in the response. OTP may not have been sent.',
-        );
-      }
+      // if (!response.data.Message_ID) {
+      //   throw new InternalServerErrorException(
+      //     'Message ID is missing in the response. OTP may not have been sent.',
+      //   );
+      // }
     } catch (error) {
       console.error('Error sending SMS:', error);
       throw new RequestTimeoutException(

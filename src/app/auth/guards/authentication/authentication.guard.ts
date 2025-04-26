@@ -43,6 +43,7 @@ export class AuthenticationGuard implements CanActivate {
       request.path === '/api/v1/auth/verify-otp' ||
       request.path === '/api/v1/auth/resend-otp' ||
       request.path === '/api/v1/auth/forget-password' ||
+      request.path === '/api/v1/auth/reset-password' ||
       request.path === '/api/v1/packages/all-packages' ||
       request.path === '/api/v1/testimonials/all-testimonials' ||
       request.path === '/api/v1/faqs/all-faqs' ||

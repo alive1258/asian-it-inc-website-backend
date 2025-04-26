@@ -5,7 +5,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { imageFileFilter } from '../uploads.utils';
+import { imageFileFilter } from './uploads.utils';
+import { fileNameEditor } from '../uploads.utils';
 
 @Injectable()
 export class FileUploadsProvider {
@@ -25,192 +26,84 @@ export class FileUploadsProvider {
    */
   public async handleFileUploads(
     files: Express.Multer.File | Express.Multer.File[],
-  ): Promise<string | string[]> {
-    // Guard clause: no file(s) provided
+  ): Promise<string[] | string> {
     if (!files) {
       throw new NotFoundException('No file(s) provided');
     }
 
-    // Normalize the input to always be an array
+    // If a single file is provided, convert it to an array for uniform processing
     const fileArray = Array.isArray(files) ? files : [files];
 
-    // Upload each file asynchronously
-    const uploadedFileNames = await Promise.all(
-      fileArray.map((file) => this.uploadSingleFile(file)),
-    );
-
-    // Return a single name or array depending on the original input
-    return uploadedFileNames.length === 1
-      ? uploadedFileNames[0]
-      : uploadedFileNames;
-  }
-
-  /**
-   * Uploads a single image file after validation.
-   *
-   * @param file - Multer file object
-   * @returns The uploaded file's name
-   */
-  private async uploadSingleFile(file: Express.Multer.File): Promise<string> {
-    // Validate the image MIME type
-    await this.validateImageFile(file);
-
-    // Guard clause: check for buffer availability
-    if (!file.buffer) {
-      throw new BadRequestException('File buffer is empty');
-    }
-
-    // Convert the buffer into a Blob and prepare it for form-data submission
-    const blob = new Blob([file.buffer], { type: file.mimetype });
-    const formData = new FormData();
-    formData.append('file', blob);
-
-    // Get external upload service URL from environment config
-    const uploadUrl = this.configService.get<string>(
-      'appConfig.imageUploadUrl',
-    );
-    if (!uploadUrl) {
-      throw new BadRequestException('Image upload URL is not configured');
-    }
-
     try {
-      // Send file to upload endpoint using axios
-      const response = await this.httpService.axiosRef.post(
-        `${uploadUrl}/upload`,
-        formData,
-        {
-          headers: { 'Content-Type': 'multipart/form-data' },
+      const uploadPromises = fileArray.map(
+        async (file: Express.Multer.File) => {
+          let imageFile: string = '';
+
+          // Validate the file type using the imageFileFilter
+          await new Promise((resolve, reject) => {
+            imageFileFilter(file, (error, acceptFile) => {
+              if (error) {
+                reject(error); // Reject if validation fails
+              } else if (!acceptFile) {
+                reject(new BadRequestException('Invalid file type!'));
+              }
+              resolve(null);
+            });
+          });
+
+          // Edit the filename using fileNameEditor
+          fileNameEditor(file, (error, filename) => {
+            if (error) {
+              throw new Error(`Filename error: ${error.message}`);
+            }
+            imageFile = filename;
+          });
+
+          // Create the file path (for saving locally or returning as a file path)
+          const filePath = `public/uploads/${imageFile}`;
+
+          // If the file needs to be uploaded (e.g., to an external service)
+          if (file.mimetype === 'application/octet-stream' || file.buffer) {
+            const blob = new Blob([file.buffer], { type: file.mimetype });
+            const formData = new FormData();
+            formData.append('file', blob, imageFile);
+
+            try {
+              const imageUploadUrl = this.configService.get<string>(
+                'appConfig.imageUploadUrl',
+              );
+
+              const response = await this.httpService.axiosRef.post(
+                `${imageUploadUrl}/upload`,
+                formData,
+                {
+                  headers: {
+                    'Content-Type': 'multipart/form-data',
+                  },
+                },
+              );
+
+              // Return the uploaded file name
+              return response.data.name;
+            } catch (error) {
+              throw new BadRequestException(
+                `File upload failed: ${error.message}`,
+              );
+            }
+          }
+
+          // If file is local, just save the path (for local storage, etc.)
+          return filePath;
         },
       );
 
-      // Ensure a file name is returned from the response
-      const uploadedName = response.data?.name;
-      if (!uploadedName) {
-        throw new BadRequestException(
-          'Upload succeeded but no file name returned',
-        );
-      }
+      const filePaths = await Promise.all(uploadPromises);
 
-      return uploadedName;
+      // If there was a single file, return a single string, otherwise return an array of paths
+      return filePaths.length === 1 ? filePaths[0] : filePaths;
     } catch (error) {
-      throw new BadRequestException(`Upload failed: ${error.message}`);
+      console.log(error);
+      throw new BadRequestException(`File upload error: ${error.message}`);
     }
   }
-
-  /**
-   * Validates that the provided file is a supported image type.
-   * Allowed types: JPG, JPEG, PNG, GIF
-   *
-   * @param file - File to be validated
-   * @throws BadRequestException if file is invalid
-   */
-  private async validateImageFile(file: Express.Multer.File): Promise<void> {
-    await new Promise<void>((resolve, reject) => {
-      imageFileFilter(file, (error, acceptFile) => {
-        if (error || !acceptFile) {
-          return reject(
-            error ?? new BadRequestException('Invalid image file type!'),
-          );
-        }
-        resolve();
-      });
-    });
-  }
 }
-
-// import { HttpService } from '@nestjs/axios';
-// import {
-//   BadRequestException,
-//   Injectable,
-//   NotFoundException,
-// } from '@nestjs/common';
-// import {  imageFileFilter } from '../uploads.utils';
-// import { ConfigService } from '@nestjs/config';
-
-// @Injectable()
-// export class FileUploadsProvider {
-//   constructor(
-//     private readonly httpService: HttpService,
-//     private readonly configService: ConfigService,
-//   ) {}
-
-//   /**
-//    * Handles single or multiple image file uploads.
-//    * Validates file type and uploads it to an external service.
-//    *
-//    * @param files - A single file or an array of files
-//    * @returns A single file name or an array of file names
-//    */
-//   public async handleFileUploads(
-//     files: Express.Multer.File | Express.Multer.File[],
-//   ): Promise<string | string[]> {
-//     if (!files) {
-//       throw new NotFoundException('No file(s) provided');
-//     }
-
-//     // Normalize input: always work with an array
-//     const fileArray = Array.isArray(files) ? files : [files];
-
-//     // Process all files asynchronously
-//     const uploadedFileNames = await Promise.all(
-//       fileArray.map(async (file) => {
-//         // Validate the file type
-//         await this.validateImageFile(file);
-
-//         // Prepare the file blob for upload
-//         const blob = new Blob([file.buffer], { type: file.mimetype });
-//         const formData = new FormData();
-//         formData.append('file', blob);
-
-//         // Get upload URL from configuration
-//         const uploadUrl = this.configService.get<string>('appConfig.imageUploadUrl');
-//         if (!uploadUrl) {
-//           throw new BadRequestException('Upload URL is not configured');
-//         }
-
-//         try {
-//           // Upload the file using axios (through NestJS HttpService)
-//           const response = await this.httpService.axiosRef.post(
-//             `${uploadUrl}/upload`,
-//             formData,
-//             {
-//               headers: {
-//                 'Content-Type': 'multipart/form-data',
-//               },
-//             },
-//           );
-
-//           // Return the uploaded file name from the response
-//           return response.data?.name || 'unknown_filename';
-//         } catch (error) {
-//           throw new BadRequestException(`Upload failed: ${error.message}`);
-//         }
-//       }),
-//     );
-
-//     // Return single file name or array of names based on input
-//     return uploadedFileNames.length === 1 ? uploadedFileNames[0] : uploadedFileNames;
-//   }
-
-//   /**
-//    * Validates whether the uploaded file is an image.
-//    * Throws a BadRequestException if not valid.
-//    *
-//    * @param file - The file to validate
-//    */
-//   private async validateImageFile(file: Express.Multer.File): Promise<void> {
-//     await new Promise<void>((resolve, reject) => {
-//       imageFileFilter(file, (error, acceptFile) => {
-//         if (error) {
-//           return reject(error);
-//         }
-
-//         if (!acceptFile) {
-//           return reject(new BadRequestException('Invalid image file type!'));
-//         }
-
-//         resolve();
-//       });
-//     });
-//   }
-// }

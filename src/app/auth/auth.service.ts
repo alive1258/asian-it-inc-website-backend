@@ -68,10 +68,13 @@ export class AuthService {
   }
 
   // reSendOTP
-  public async resendOTP(userId: string, mobile: string) {
-    if (!userId || !mobile) {
-      throw new BadRequestException('Empty otp details are not allowed.');
+  public async resendOTP(userId: string, email: string) {
+    if (!userId || !email) {
+      throw new BadRequestException(
+        'Authentication failed. User ID or Email does not match.',
+      );
     }
+
     //find the user
     let user = await this.usersService.findOneById(userId);
     if (!user) {
@@ -84,12 +87,9 @@ export class AuthService {
   }
 
   // forget password
-  public async forgetPassword(userId: string, mobile: string) {
-    if (!userId || !mobile) {
-      throw new BadRequestException('Empty otp details are not allowed.');
-    }
+  public async forgetPassword(email: string) {
     // find user from database
-    const user = await this.usersService.findOneById(userId);
+    const user = await this.usersService.findOneByEmail(email);
 
     if (!user) {
       throw new NotFoundException("User couldn't found! Check your email.");

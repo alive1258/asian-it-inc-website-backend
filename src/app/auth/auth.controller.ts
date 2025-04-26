@@ -43,6 +43,24 @@ export class AuthController {
   }
 
   /**
+   * Resend OTP
+   */
+
+  @Post('/resend-otp')
+  @ApiOperation({
+    summary: 'Resend OTP',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Data fetched successfully.',
+  })
+  public resendOTP(
+    @Body() { UserId, email }: { UserId: string; email: string },
+  ) {
+    return this.authService.resendOTP(UserId, email);
+  }
+
+  /**
    * Sign-out controller
    */
   @Post('sign-out')
@@ -87,24 +105,6 @@ export class AuthController {
   }
 
   /**
-   * Resend OTP controller
-   */
-  @Post('/resend-otp')
-  @Auth(AuthType.None)
-  @ApiOperation({
-    summary: 'Resend OTP',
-  })
-  @ApiResponse({
-    status: 201,
-    description: 'Data fetched successfully.',
-  })
-  public resendOTP(
-    @Body() { userId, mobile }: { userId: string; mobile: string },
-  ) {
-    return this.authService.resendOTP(userId, mobile);
-  }
-
-  /**
    * Forget Password controller
    */
   @Post('/forget-password')
@@ -115,10 +115,8 @@ export class AuthController {
     status: 201,
     description: 'Data fetched successfully.',
   })
-  public forgetPassword(
-    @Body() { userId, mobile }: { userId: string; mobile: string },
-  ) {
-    return this.authService.forgetPassword(userId, mobile);
+  public forgetPassword(@Body() { email }: { email: string }) {
+    return this.authService.forgetPassword(email);
   }
 
   /**

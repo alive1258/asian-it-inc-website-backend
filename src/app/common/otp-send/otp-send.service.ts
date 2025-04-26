@@ -24,8 +24,8 @@ export class OtpService {
    * Send OTP
    */
   public async sendOtp(user: User, entityManager: EntityManager): Promise<OTP> {
-    if (!user.mobile) {
-      throw new BadRequestException('User mobile number is required.');
+    if (!user.email) {
+      throw new BadRequestException('User email is required.');
     }
 
     // Generate a secure random OTP
@@ -48,7 +48,7 @@ export class OtpService {
 
       try {
         // Send OTP via SMS
-        await this.sendOtpViaSms(user.mobile, verify_code);
+        await this.sendOtpViaSms(user.email, verify_code);
       } catch (error) {
         console.error('SMS Sending Error:', error);
         throw new RequestTimeoutException(
@@ -66,8 +66,8 @@ export class OtpService {
    * ReSend OTP
    */
   public async reSendOtp(user: User): Promise<OTP> {
-    if (!user.mobile) {
-      throw new BadRequestException('User mobile number is required.');
+    if (!user.email) {
+      throw new BadRequestException('User email  is required.');
     }
 
     // Generate a secure random OTP
@@ -99,8 +99,7 @@ export class OtpService {
 
     try {
       // Send OTP via SMS
-      const result = await this.sendOtpViaSms(user.mobile, verify_code);
-      console.log(result);
+      const result = await this.sendOtpViaSms(user.email, verify_code);
     } catch (error) {
       console.error('SMS Sending Error:', error);
       throw new RequestTimeoutException(

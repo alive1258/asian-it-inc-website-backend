@@ -31,7 +31,9 @@ export class VerifyOTPProvider {
   public async verifyOTP(userOTPDto: UserOTPDto) {
     //check the userOTPDto exist
     if (!userOTPDto.user_id || !userOTPDto.otp_code) {
-      throw new BadRequestException('Empty otp details are not allowed.');
+      throw new BadRequestException(
+        'Authentication failed. User ID or Email does not match.',
+      );
     }
     //return the user
     const user = await this.usersService.findOneById(userOTPDto.user_id);

@@ -17,6 +17,7 @@ import { AuthType } from './enums/auth-type.enum';
 import { UserOTPDto } from './dtos/user-otp.dto';
 import { Request } from 'express';
 import { UpdateUserDto } from '../modules/users/dto/update-user.dto';
+import { ResetPasswordDto } from './dtos/reset-password.dtos';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -131,12 +132,12 @@ export class AuthController {
     description: 'Data fetched successfully.',
   })
   public resetPassword(
-    @Body() updateUserDto: UpdateUserDto,
+    @Body() resetPasswordDto: ResetPasswordDto,
     @Req() req: Request,
   ) {
-    const id = req.user?.sub;
+    const userId = req.user?.sub;
 
-    return this.authService.resetPassword(updateUserDto, id ?? '');
+    return this.authService.resetPassword(resetPasswordDto, userId ?? '');
   }
 
   /**

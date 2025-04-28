@@ -100,14 +100,39 @@ export class MailService {
       );
     }
 
+    // Get the current time
+    const currentTime = new Date();
+
+    // Check if 24 hours have passed since the last OTP attempt
+    const timeDiff =
+      currentTime.getTime() - new Date(existOtp.updated_at).getTime();
+    const hoursPassed = timeDiff / (1000 * 3600); // in hours
+
+    if (hoursPassed < 24 && existOtp.attempt >= 3) {
+      // If user has attempted OTP 3 times within the last 24 hours, block them
+      throw new RequestTimeoutException(
+        'You have exceeded the limit of OTP attempts. Please try again after 24 hours.',
+        {
+          description: 'OTP attempt limit reached',
+        },
+      );
+    }
+
     //hash the otp
     const salt = await bcrypt.genSalt();
     const hashedOTP = await bcrypt.hash(otp_code, salt);
 
     // update otp info
-    existOtp.attempt = Number(existOtp.attempt) + 1;
-    existOtp.expire_at = new Date(Date.now() + 60000); // 1 minute from now
+    // existOtp.attempt = Number(existOtp.attempt) + 1;
+    // existOtp.expire_at = new Date(Date.now() + 60000); // 1 minute from now
+    // existOtp.otp_code = hashedOTP;
+
+    // Update OTP information
+    existOtp.attempt =
+      existOtp.attempt >= 3 && hoursPassed < 24 ? existOtp.attempt : 1; // Reset if 24 hours passed
+    existOtp.expire_at = new Date(Date.now() + 60000); // OTP expires in 1 minute
     existOtp.otp_code = hashedOTP;
+    existOtp.updated_at = new Date(); // Update the time of the OTP attempt
 
     //save otp date
 

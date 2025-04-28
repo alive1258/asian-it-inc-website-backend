@@ -12,6 +12,8 @@ import { GenerateTokensProvider } from './providers/generate-tokens.provider';
 import { RefreshTokensProvider } from './providers/refresh-tokens.provider';
 import { OtpSendModule } from '../common/otp-send/otp-send.module';
 import { VerifyOTPProvider } from './providers/veryfy-otp.provider';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from '../modules/users/entities/user.entity';
 
 @Module({
   controllers: [AuthController],
@@ -31,6 +33,7 @@ import { VerifyOTPProvider } from './providers/veryfy-otp.provider';
     ConfigModule.forFeature(jwtConfig),
     JwtModule.registerAsync(jwtConfig.asProvider()),
     OtpSendModule,
+    TypeOrmModule.forFeature([User]),
   ],
   exports: [AuthService, HashingProvider],
 })

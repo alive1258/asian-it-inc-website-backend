@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
   RequestTimeoutException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { SignInDto } from './dtos/signin.dto';
 import { SignInProvider } from './providers/sign-in.provider';
@@ -15,10 +16,16 @@ import { Request } from 'express';
 import { UpdateUserDto } from '../modules/users/dto/update-user.dto';
 import { User } from '../modules/users/entities/user.entity';
 import { MailService } from '../modules/mail/mail.service';
+import { ResetPasswordDto } from './dtos/reset-password.dtos';
+import { HashingProvider } from './providers/hashing.provider';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class AuthService {
   constructor(
+    @InjectRepository(User)
+    private readonly usersRepository: Repository<User>,
     /**
      * Inject SigInProvider
      */
@@ -40,6 +47,9 @@ export class AuthService {
      */
 
     private readonly mailService: MailService,
+
+    // Inject hashingPassword
+    private readonly hashingProvider: HashingProvider,
   ) {}
 
   /**
@@ -107,15 +117,39 @@ export class AuthService {
   }
 
   // reset password
-  public async resetPassword(updateUserDto: UpdateUserDto, id: string) {
+  public async resetPassword(
+    resetPasswordDto: ResetPasswordDto,
+    userId: string,
+  ) {
     //find the user from database
-    const user = await this.usersService.findOne(id);
+    const user = await this.usersService.findOne(userId);
 
     if (!user) {
-      throw new NotFoundException('User does not exist.');
+      throw new NotFoundException('User does not exist. SignIn first.');
     }
+    const { old_password, new_password, confirm_password } = resetPasswordDto;
+    // compare old password to the hash
+    const isMatch = await this.hashingProvider.comparePassword(
+      old_password,
+      user.password,
+    );
 
-    return this.usersService.update(id, updateUserDto);
+    if (!isMatch) {
+      throw new UnauthorizedException('Old password is incorrect.');
+    }
+    // Check if newPassword and confirmPassword match
+    if (new_password !== confirm_password) {
+      throw new BadRequestException(
+        'New password and confirm password do not match.',
+      );
+    }
+    // update password
+    const hashedPassword =
+      await this.hashingProvider.hashPassword(new_password);
+    user.password = hashedPassword;
+
+    // Save and return updated user
+    return await this.usersRepository.save(user);
   }
 
   /**

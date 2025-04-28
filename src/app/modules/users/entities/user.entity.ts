@@ -59,6 +59,7 @@ export class User {
   /**
    * Password
    */
+
   @Column({ type: 'varchar', length: 255, nullable: true })
   @Exclude()
   password: string;

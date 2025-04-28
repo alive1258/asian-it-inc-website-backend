@@ -72,14 +72,12 @@ export class VerifyOTPProvider {
     if (!validOTP) {
       throw new BadRequestException('Invalid code passed. Check your inbox');
     }
-    //update user info
-    user.is_verified = true;
 
     // Update user verification
-    await this.usersService.update(user.id, user);
+    await this.usersService.update(user.id, { is_verified: true });
 
     //send welcome sms
-    // await this.otpService.sendWelcomeSms(user);
+
     await this.mailService.sendWelcomeMail(user);
 
     const tokens = await this.generateTokensProvider.generateTokens(user);

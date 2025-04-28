@@ -42,6 +42,7 @@ export class SignInProvider {
     if (user.is_verified === false) {
       throw new NotFoundException('User is not verified.');
     }
+
     //compare password to the hash
     let isEqual: boolean = false;
     try {
@@ -62,13 +63,5 @@ export class SignInProvider {
     // 4. If login successful, resend OTP
     const result = await this.mailService.resendOtp(user);
     return result;
-
-    // const result = await this.generateTokensProvider.generateTokens(user);
-
-    // 5. Return a message (no tokens yet, because OTP verification pending)
-    // return {
-    //   message:
-    //     'OTP has been sent to your email. Please verify the OTP to complete login.',
-    // };
   }
 }

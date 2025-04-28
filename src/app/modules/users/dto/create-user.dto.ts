@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Exclude } from 'class-transformer';
 import {
   IsBoolean,
   IsEmail,
@@ -79,6 +80,7 @@ export class CreateUserDto {
   /**
    * Password
    */
+  @Exclude()
   @IsString()
   @IsNotEmpty()
   @MinLength(6)

@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import {
   Column,
   CreateDateColumn,
@@ -31,6 +32,7 @@ export class OTP {
     length: 512,
     nullable: false,
   })
+  @Exclude()
   otp_code: string;
 
   /**

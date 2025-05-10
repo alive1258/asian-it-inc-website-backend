@@ -5,11 +5,11 @@ import { PaginationQueryDto } from 'src/app/common/data-query/dto/data-query.dto
 class GetFaqBaseDto {
   @IsString()
   @IsOptional()
-  'headline'?: string;
+  headline?: string;
 
   @IsString()
   @IsOptional()
-  'photo'?: string;
+  photo?: string;
 }
 
 export class GetFaqDto extends IntersectionType(

@@ -46,9 +46,7 @@ export class DeleteFileUploadsProvider {
       const response = await this.httpService.axiosRef.post(
         `${imageUploadUrl}/delete`,
         formData,
-        // {
-        //   headers: formData.getHeaders(),
-        // },
+
         {
           headers: {
             'Content-Type': 'multipart/form-data',
@@ -56,13 +54,13 @@ export class DeleteFileUploadsProvider {
         },
       );
 
-      if (response.status !== 200 || !response.data?.value) {
+      if (response.status !== 200 || !response.data?.status) {
         throw new BadRequestException(
           'Failed to delete the file on remote server',
         );
       }
 
-      return response.data.value;
+      return response.data.status;
     } catch (error) {
       this.logger.error(
         `Error deleting file "${currentFile}": ${error.message}`,

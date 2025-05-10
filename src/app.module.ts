@@ -12,15 +12,10 @@ import jwtConfig from './app/auth/config/jwt.config';
 import { JwtModule } from '@nestjs/jwt';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AuthenticationGuard } from './app/auth/guards/authentication/authentication.guard';
-import { AttendanceModule } from './app/modules/attendance/attendance.module';
 import { DatabaseExceptionFilter } from './app/common/errors/global.errors';
-import { GroupTypesModule } from './app/modules/group-types/group-types.module';
-import { GroupsModule } from './app/modules/groups/groups.module';
 import { DataResponseInterceptor } from './app/common/interceptors/data-response/data-response.interceptor';
 import { InitialAuthenticationGuard } from './app/auth/guards/authentication/initial.guard';
-import { MembersModule } from './app/modules/members/members.module';
 import { PackagesModule } from './app/modules/packages/packages.module';
-import { PointsModule } from './app/modules/points/points.module';
 import { DataQueryModule } from './app/common/data-query/data-query.module';
 import { MailModule } from './app/modules/mail/mail.module';
 import { PricingModule } from './app/modules/pricing/pricing.module';
@@ -28,6 +23,12 @@ import { FaqsModule } from './app/modules/faqs/faqs.module';
 import { FileUploadsModule } from './app/common/file-uploads/file-uploads.modules';
 import { TestimonialsModule } from './app/modules/testimonials/testimonials.module';
 import { FaqAnsModule } from './app/modules/faq-ans/faq-ans.module';
+import { HomeHeroSectionModule } from './app/modules/home-hero-section/home-hero-section.module';
+import { HomeAboutSectionModule } from './app/modules/home-about-section/home-about-section.module';
+import { HomeEducationModule } from './app/modules/home-education/home-education.module';
+import { ExperienceModule } from './app/modules/experience/experience.module';
+import { AboutMeModule } from './app/modules/about-me/about-me.module';
+import { MyHobbiesModule } from './app/modules/my-hobbies/my-hobbies.module';
 
 /**
  * // Get environment (development/production/etc.)
@@ -66,12 +67,8 @@ const ENV = process.env.NODE_ENV;
     ConfigModule.forFeature(jwtConfig),
     JwtModule.registerAsync(jwtConfig.asProvider()),
     // Feature modules
-    AttendanceModule,
-    GroupTypesModule,
-    GroupsModule,
-    MembersModule,
+
     PackagesModule,
-    PointsModule,
     DataQueryModule,
     MailModule,
     PricingModule,
@@ -79,6 +76,12 @@ const ENV = process.env.NODE_ENV;
     FileUploadsModule,
     TestimonialsModule,
     FaqAnsModule,
+    HomeHeroSectionModule,
+    HomeAboutSectionModule,
+    HomeEducationModule,
+    ExperienceModule,
+    AboutMeModule,
+    MyHobbiesModule,
   ],
   controllers: [AppController],
   providers: [

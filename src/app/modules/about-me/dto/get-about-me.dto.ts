@@ -1,12 +1,7 @@
-import {
-  ApiProperty,
-  ApiPropertyOptional,
-  IntersectionType,
-} from '@nestjs/swagger';
+import { ApiPropertyOptional, IntersectionType } from '@nestjs/swagger';
 import {
   ArrayNotEmpty,
   IsArray,
-  IsNotEmpty,
   IsOptional,
   IsString,
   IsUrl,

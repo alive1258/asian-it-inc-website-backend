@@ -1,3 +1,4 @@
+import { ApiTags } from '@nestjs/swagger';
 import {
   Column,
   CreateDateColumn,
@@ -6,40 +7,20 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity({ name: 'about-me' })
-export class AboutMe {
+@Entity({ name: 'snapshots-category' })
+@ApiTags('SnapshotsCategory')
+export class SnapshotsCategory {
   /**
    * Primary key ID (auto-incremented bigint)
    */
   @PrimaryGeneratedColumn('increment', { type: 'bigint' })
   id: string;
 
-  @Column({ type: 'text' })
-  title: string;
-
   /**
    * Short description or tagline shown in the hero section.
    */
   @Column({ type: 'text' })
-  description: string;
-
-  @Column({ type: 'text' })
-  sub_title: string;
-
-  @Column({ type: 'text' })
-  skills: string[];
-
-  /**
-   * Link to the CV or portfolio (optional).
-   */
-  @Column({ type: 'varchar', nullable: true, length: 500 })
-  cv_link?: string;
-
-  /**
-   * Photo filename or image URL (optional).
-   */
-  @Column({ type: 'varchar', nullable: true, length: 255 })
-  photo?: string;
+  title: string;
 
   /**
    * ID of the user who added this record.

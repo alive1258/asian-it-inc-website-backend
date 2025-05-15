@@ -29,6 +29,12 @@ import { HomeEducationModule } from './app/modules/home-education/home-education
 import { ExperienceModule } from './app/modules/experience/experience.module';
 import { AboutMeModule } from './app/modules/about-me/about-me.module';
 import { MyHobbiesModule } from './app/modules/my-hobbies/my-hobbies.module';
+import { CollaborateModule } from './app/modules/collaborate/collaborate.module';
+import { SnapshotsModule } from './app/modules/snapshots/snapshots.module';
+import { SnapshotsCategoryModule } from './app/modules/snapshots-category/snapshots-category.module';
+import { ProfessorsModule } from './app/modules/professors/professors.module';
+import { ExtraCurriculumCategoryModule } from './app/modules/extra-curriculum-category/extra-curriculum-category.module';
+import { ExtraCurriculumModule } from './app/modules/extra-curriculum/extra-curriculum.module';
 
 /**
  * // Get environment (development/production/etc.)
@@ -82,6 +88,12 @@ const ENV = process.env.NODE_ENV;
     ExperienceModule,
     AboutMeModule,
     MyHobbiesModule,
+    CollaborateModule,
+    SnapshotsModule,
+    SnapshotsCategoryModule,
+    ProfessorsModule,
+    ExtraCurriculumCategoryModule,
+    ExtraCurriculumModule,
   ],
   controllers: [AppController],
   providers: [

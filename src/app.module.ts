@@ -35,6 +35,9 @@ import { SnapshotsCategoryModule } from './app/modules/snapshots-category/snapsh
 import { ProfessorsModule } from './app/modules/professors/professors.module';
 import { ExtraCurriculumCategoryModule } from './app/modules/extra-curriculum-category/extra-curriculum-category.module';
 import { ExtraCurriculumModule } from './app/modules/extra-curriculum/extra-curriculum.module';
+import { SkillsCategoryModule } from './app/modules/skills-category/skills-category.module';
+import { SkillsModule } from './app/modules/skills/skills.module';
+import { CollaboratingModule } from './app/modules/collaborating/collaborating.module';
 
 /**
  * // Get environment (development/production/etc.)
@@ -94,6 +97,9 @@ const ENV = process.env.NODE_ENV;
     ProfessorsModule,
     ExtraCurriculumCategoryModule,
     ExtraCurriculumModule,
+    SkillsCategoryModule,
+    SkillsModule,
+    CollaboratingModule,
   ],
   controllers: [AppController],
   providers: [

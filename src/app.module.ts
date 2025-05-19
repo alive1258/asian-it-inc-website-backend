@@ -15,29 +15,10 @@ import { AuthenticationGuard } from './app/auth/guards/authentication/authentica
 import { DatabaseExceptionFilter } from './app/common/errors/global.errors';
 import { DataResponseInterceptor } from './app/common/interceptors/data-response/data-response.interceptor';
 import { InitialAuthenticationGuard } from './app/auth/guards/authentication/initial.guard';
-import { PackagesModule } from './app/modules/packages/packages.module';
 import { DataQueryModule } from './app/common/data-query/data-query.module';
 import { MailModule } from './app/modules/mail/mail.module';
-import { PricingModule } from './app/modules/pricing/pricing.module';
-import { FaqsModule } from './app/modules/faqs/faqs.module';
 import { FileUploadsModule } from './app/common/file-uploads/file-uploads.modules';
 import { TestimonialsModule } from './app/modules/testimonials/testimonials.module';
-import { FaqAnsModule } from './app/modules/faq-ans/faq-ans.module';
-import { HomeHeroSectionModule } from './app/modules/home-hero-section/home-hero-section.module';
-import { HomeAboutSectionModule } from './app/modules/home-about-section/home-about-section.module';
-import { HomeEducationModule } from './app/modules/home-education/home-education.module';
-import { ExperienceModule } from './app/modules/experience/experience.module';
-import { AboutMeModule } from './app/modules/about-me/about-me.module';
-import { MyHobbiesModule } from './app/modules/my-hobbies/my-hobbies.module';
-import { CollaborateModule } from './app/modules/collaborate/collaborate.module';
-import { SnapshotsModule } from './app/modules/snapshots/snapshots.module';
-import { SnapshotsCategoryModule } from './app/modules/snapshots-category/snapshots-category.module';
-import { ProfessorsModule } from './app/modules/professors/professors.module';
-import { ExtraCurriculumCategoryModule } from './app/modules/extra-curriculum-category/extra-curriculum-category.module';
-import { ExtraCurriculumModule } from './app/modules/extra-curriculum/extra-curriculum.module';
-import { SkillsCategoryModule } from './app/modules/skills-category/skills-category.module';
-import { SkillsModule } from './app/modules/skills/skills.module';
-import { CollaboratingModule } from './app/modules/collaborating/collaborating.module';
 
 /**
  * // Get environment (development/production/etc.)
@@ -77,29 +58,10 @@ const ENV = process.env.NODE_ENV;
     JwtModule.registerAsync(jwtConfig.asProvider()),
     // Feature modules
 
-    PackagesModule,
     DataQueryModule,
     MailModule,
-    PricingModule,
-    FaqsModule,
     FileUploadsModule,
     TestimonialsModule,
-    FaqAnsModule,
-    HomeHeroSectionModule,
-    HomeAboutSectionModule,
-    HomeEducationModule,
-    ExperienceModule,
-    AboutMeModule,
-    MyHobbiesModule,
-    CollaborateModule,
-    SnapshotsModule,
-    SnapshotsCategoryModule,
-    ProfessorsModule,
-    ExtraCurriculumCategoryModule,
-    ExtraCurriculumModule,
-    SkillsCategoryModule,
-    SkillsModule,
-    CollaboratingModule,
   ],
   controllers: [AppController],
   providers: [

@@ -14,4 +14,6 @@ export default registerAs('appConfig', () => ({
   awsAccessKey: process.env.AWS_ACCESS_KEY_ID,
   awsSecretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   imageUploadUrl: process.env.IMAGE_UPLOAD_URL,
+  throttleLimit: process.env.THROTTLE_LIMIT,
+  throttleTtl: process.env.THROTTLE_TTL,
 }));

@@ -1,4 +1,4 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { forwardRef, Global, Module } from '@nestjs/common';
 import { UsersModule } from '../modules/users/users.module';
 import { AuthService } from './auth.service';
 import { HashingProvider } from './providers/hashing.provider';
@@ -15,6 +15,7 @@ import { VerifyOTPProvider } from './providers/veryfy-otp.provider';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../modules/users/entities/user.entity';
 
+@Global()
 @Module({
   controllers: [AuthController],
   providers: [
@@ -35,6 +36,6 @@ import { User } from '../modules/users/entities/user.entity';
     OtpSendModule,
     TypeOrmModule.forFeature([User]),
   ],
-  exports: [AuthService, HashingProvider],
+  exports: [AuthService, HashingProvider, JwtModule, ConfigModule],
 })
 export class AuthModule {}

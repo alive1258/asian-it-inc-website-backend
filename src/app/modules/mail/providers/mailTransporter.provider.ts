@@ -21,6 +21,10 @@ export class MailTransporter {
         user: this.configService.get('appConfig.smtpUserName'),
         pass: this.configService.get('appConfig.smtpPassword'),
       },
+      tls: {
+        // Add this to allow self-signed certificates
+        rejectUnauthorized: false,
+      },
     });
   }
   // public async sendMail(options: SendMailOptions) {

@@ -4,16 +4,15 @@ import {
   ForbiddenException,
   Inject,
   Injectable,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
-import jwtConfig from '../../config/jwt.config';
+import jwtConfig from '../config/jwt.config';
 import { ConfigType } from '@nestjs/config';
-import { REQUEST_USER_KEY } from '../../constants/auth.constants';
+import { REQUEST_USER_KEY } from '../constants/auth.constants';
 
 @Injectable()
-export class AccessTokenGuard implements CanActivate {
+export class AuthenticationGuard implements CanActivate {
   constructor(
     /**
      * Injects the JwtService to handle JWT-related operations.
@@ -29,27 +28,13 @@ export class AccessTokenGuard implements CanActivate {
 
   /**
    * Determines whether the request can proceed based on authentication.
-
+   * @param context The execution context containing request details.
+   * @returns A boolean indicating whether access is granted.
    */
   async canActivate(context: ExecutionContext): Promise<boolean> {
     // Extract the request object from the execution context
     const request = context.switchToHttp().getRequest();
 
-    // Allow unauthenticated access to the sign-in endpoint
-    if (
-      request.path === '/api/v1/auth/refresh-token' ||
-      request.path === '/api/v1/auth/sign-in' ||
-      request.path === '/api/v1/auth/verify-otp' ||
-      request.path === '/api/v1/auth/forget-password' ||
-      request.path === '/api/v1/auth/reset-password' ||
-      request.path === '/api/v1/auth/resend-otp' ||
-      request.path === '/api/v1/packages/all-packages' ||
-      request.path === '/api/v1/testimonials/all-testimonials' ||
-      request.path === '/api/v1/faqs/all-faqs' ||
-      request.path === '/api/v1/faq-ans/all-faq-ans'
-    ) {
-      return true;
-    }
     // Extract the authorization token from the request headers
     const token = this.extractTokenFromCookie(request);
 
@@ -63,7 +48,6 @@ export class AccessTokenGuard implements CanActivate {
         token,
         this.jwtConfiguration,
       );
-      // Attach the user payload to the request for further processing
       request[REQUEST_USER_KEY] = payload;
     } catch {
       // Handle JWT verification errors (e.g., expired or invalid token)
@@ -73,29 +57,9 @@ export class AccessTokenGuard implements CanActivate {
     return true;
   }
 
-  /**
-   * Extracts the access token from the Authorization header.
-   * @param request The incoming HTTP request.
-   * @returns The extracted access token or undefined if not found.
-   */
-
-  // private getRequest(context: ExecutionContext): Request {
-  //   return context.switchToHttp().getRequest();
-  // }
   private extractTokenFromCookie(request: Request): string | undefined {
     const token = request.cookies?.accessToken;
+
     return token;
   }
-
-  // private extractRequestTokenFromHeader(request: Request): string | undefined {
-  //   const authorizationHeader = request.headers.authorization;
-
-  //   // Ensure the header exists and follows the "Bearer <token>" format
-  //   if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-  //     return undefined;
-  //   }
-
-  //   // Extract and return the token part
-  //   return authorizationHeader.split(' ')[1];
-  // }
 }

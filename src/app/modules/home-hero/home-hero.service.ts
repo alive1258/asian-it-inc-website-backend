@@ -52,6 +52,8 @@ export class HomeHeroService {
     return this.homeHeroRepository.save(newEntry);
   }
 
+  // ✅ Public GET endpoint with pagination and search support
+
   public async findAll(
     getHomeHeroDto: GetHomeHeroDto,
   ): Promise<IPagination<HomeHero>> {
@@ -73,6 +75,8 @@ export class HomeHeroService {
     }
     return homeHero;
   }
+
+  // ✅ Public GET endpoint to retrieve a single Home Hero entry by ID
   public async findOne(id: string): Promise<HomeHero> {
     const homeHero = await this.homeHeroRepository.findOne({
       where: {
@@ -85,6 +89,7 @@ export class HomeHeroService {
     return homeHero;
   }
 
+  // ✅ Public PATCH endpoint to update a Home Hero entry by ID
   public async update(
     id: string,
     updateHomeHeroDto: UpdateHomeHeroDto,
@@ -109,6 +114,7 @@ export class HomeHeroService {
     return this.homeHeroRepository.save(homeHero);
   }
 
+  // ✅ Public DELETE endpoint to remove a Home Hero entry by ID
   public async remove(id: string): Promise<{ message: string }> {
     if (!id) {
       throw new BadRequestException('Home Hero ID is required');

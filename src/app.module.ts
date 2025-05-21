@@ -18,6 +18,10 @@ import { TestimonialsModule } from './app/modules/testimonials/testimonials.modu
 import { HomeHeroModule } from './app/modules/home-hero/home-hero.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { WorkGalleryModule } from './app/modules/work-gallery/work-gallery.module';
+import jwtConfig from './app/auth/config/jwt.config';
+import { JwtModule } from '@nestjs/jwt';
+import { DesignationsModule } from './app/modules/designations/designations.module';
+import { SocialSitesModule } from './app/modules/system-table/social-sites/social-sites.module';
 
 /**
  * // Get environment (development/production/etc.)
@@ -35,6 +39,7 @@ const ENV = process.env.NODE_ENV;
         },
       ],
     }),
+
     // Load environment variables and global configs
     UsersModule,
     ConfigModule.forRoot({
@@ -59,6 +64,9 @@ const ENV = process.env.NODE_ENV;
         synchronize: ConfigService.get('database.synchronize'),
       }),
     }),
+
+    ConfigModule.forFeature(jwtConfig),
+    JwtModule.registerAsync(jwtConfig.asProvider()),
     // Feature modules
 
     DataQueryModule,
@@ -67,6 +75,8 @@ const ENV = process.env.NODE_ENV;
     TestimonialsModule,
     HomeHeroModule,
     WorkGalleryModule,
+    DesignationsModule,
+    SocialSitesModule,
   ],
   controllers: [AppController],
   providers: [

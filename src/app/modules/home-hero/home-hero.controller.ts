@@ -34,7 +34,7 @@ export class HomeHeroController {
 
   // ✅ Protected POST endpoint
   @UseGuards(AuthenticationGuard, IpDeviceThrottlerGuard)
-  @Throttle({ default: { limit: 1, ttl: 60000 } })
+  @Throttle({ default: { limit: 6, ttl: 180 } })
   @Post()
   @ApiOperation({
     summary: 'Create a new Home Hero section entry',

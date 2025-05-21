@@ -20,7 +20,7 @@ export class WorkGallery {
   /**
    * Photo filename or image URL (optional).
    */
-  @Column({ type: 'bigint', nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   photo?: string;
 
   /**

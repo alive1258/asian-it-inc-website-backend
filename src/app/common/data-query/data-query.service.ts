@@ -81,6 +81,10 @@ export class DataQueryService {
     // Apply pagination
     queryBuilder.skip((page - 1) * limit).take(limit);
 
+    if (repository.metadata.propertiesMap.created_at) {
+      queryBuilder.orderBy({ 'entity.created_at': 'DESC' });
+    }
+
     // Dynamically calculate sum fields
     const sumQueryBuilder = repository.createQueryBuilder('entity');
 

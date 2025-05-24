@@ -6,8 +6,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity({ name: 'designations' })
-export class Designation {
+@Entity({ name: 'skill' })
+export class Skill {
   /**
    * Primary key ID (auto-incremented bigint)
    */
@@ -19,12 +19,6 @@ export class Designation {
    */
   @Column({ type: 'varchar', nullable: false })
   name: string;
-
-  /**
-   * Status indicating whether the designation is active
-   */
-  @Column({ type: 'boolean', nullable: false })
-  status: boolean;
 
   /**
    * User ID who added this entry

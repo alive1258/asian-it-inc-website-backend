@@ -22,6 +22,12 @@ import jwtConfig from './app/auth/config/jwt.config';
 import { JwtModule } from '@nestjs/jwt';
 import { DesignationsModule } from './app/modules/designations/designations.module';
 import { SocialSitesModule } from './app/modules/system-table/social-sites/social-sites.module';
+import { SkillsModule } from './app/modules/skills/skills.module';
+import { TeamMembersModule } from './app/modules/team-members/team-members.module';
+import { TeamMemberSkillsModule } from './app/modules/team-member-skills/team-member-skills.module';
+import { TeamMemberSocialLinksModule } from './app/modules/team-member-social-links/team-member-social-links.module';
+import { BlogCategoriesModule } from './app/modules/blog-categories/blog-categories.module';
+import { BlogsModule } from './app/modules/blogs/blogs.module';
 
 /**
  * // Get environment (development/production/etc.)
@@ -77,6 +83,12 @@ const ENV = process.env.NODE_ENV;
     WorkGalleryModule,
     DesignationsModule,
     SocialSitesModule,
+    SkillsModule,
+    TeamMembersModule,
+    TeamMemberSkillsModule,
+    TeamMemberSocialLinksModule,
+    BlogCategoriesModule,
+    BlogsModule,
   ],
   controllers: [AppController],
   providers: [

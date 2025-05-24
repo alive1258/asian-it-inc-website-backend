@@ -26,8 +26,9 @@ import {
 import { Request } from 'express';
 import { GetDesignationDto } from './dto/get-designation.dto';
 
-@ApiTags('Designations') // ✅ Groups endpoints in Swagger UI
+// ✅ Groups endpoints in Swagger UI
 @Controller('designations')
+@ApiTags('Designations')
 export class DesignationsController {
   constructor(private readonly designationsService: DesignationsService) {}
 

@@ -42,7 +42,7 @@ export class WorkGalleryController {
   create(
     @Req() req: Request,
     @Body() createWorkGalleryDto: CreateWorkGalleryDto,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() file?: Express.Multer.File,
   ) {
     return this.workGalleryService.create(req, createWorkGalleryDto, file);
   }

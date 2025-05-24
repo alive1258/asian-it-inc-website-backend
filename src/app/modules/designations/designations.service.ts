@@ -118,7 +118,6 @@ export class DesignationsService {
     if (!id) {
       throw new BadRequestException('designation ID is required');
     }
-
     const designation = await this.findOne(id);
 
     await this.designationRepository.remove(designation);

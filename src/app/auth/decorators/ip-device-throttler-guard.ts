@@ -219,7 +219,7 @@ export class IpDeviceThrottlerGuard extends ThrottlerGuard {
       if (elapsed < 3 * 60 * 1000) {
         attempt.count += 1;
 
-        if (attempt.count > 2) {
+        if (attempt.count > 20) {
           this.blocked[tracker] = now + 24 * 60 * 60 * 1000;
           delete this.attempts[tracker];
 

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   NotFoundException,
   Req,
@@ -39,14 +40,14 @@ export class BlogsService {
       throw new UnauthorizedException('User not found');
     }
 
-    // 🔎 Check if a teamMember with the same name already exists
-    const existTeamMember = await this.blogRepository.findOne({
+    // 🔎 Check if a existBlogTitle with the same name already exists
+    const existBlogTitle = await this.blogRepository.findOne({
       where: { blog_title: createBlogDto.blog_title },
     });
 
     // ⚠️ Prevent duplicate entries
-    if (existTeamMember) {
-      throw new UnauthorizedException('Team Member already exist');
+    if (existBlogTitle) {
+      throw new UnauthorizedException('Blog Title already exist');
     }
 
     let thumbnail: string | undefined;
@@ -57,7 +58,7 @@ export class BlogsService {
       // 📁 Use the uploaded thumbnail path (single or from array)
       thumbnail = Array.isArray(uploaded) ? uploaded[0] : uploaded;
     }
-    // 🏗️ Create a new teamMember entity with user and optional thumbnail
+    // 🏗️ Create a new existBlogTitle entity with user and optional thumbnail
     const teamMember = this.blogRepository.create({
       ...createBlogDto,
       added_by: user_id,
@@ -71,37 +72,32 @@ export class BlogsService {
   }
 
   public async findAll(getBlogDto: GetBlogDto): Promise<IPagination<Blog>> {
+    // Define which fields are searchable
     const searchableFields = ['blog_title', 'blog_description', 'blog_tags'];
-    // const select = [
-    //   'id',
-    //   'name',
-    //   'slug',
-    //   'photo',
-    //   'designation_id',
-    //   'added_by',
-    //   'created_at',
-    //   'updated_at',
-    // ];
-    const relations = ['teamMember', 'blogCategory'];
-    // const selectRelations = [
-    //   'designation.id',
-    //   'designation.name',
-    //   'designation.status',
-    // ];
-    // ✅ Join specified relations
 
-    // Destructure pagination, search, and filters from DTO
+    // Define related entities to join (eager loading)
+    const relations = ['teamMember', 'teamMember.designation', 'blogCategory'];
+    const selectRelations = [
+      'teamMember.name',
+      'teamMember.photo',
+      'teamMember_designation.name',
+      'teamMember_designation.status',
+    ];
+
+    // Destructure pagination, search term, and other filter fields from DTO
     const { limit, page, search, ...filters } = getBlogDto;
 
+    // Query the database using the dataQueryService
     const teamMember = await this.dataQueryService.dataQuery({
       paginationQuery: { limit, page, search, filters },
       searchableFields,
       relations,
       // select,
-      // selectRelations,
+      selectRelations,
       repository: this.blogRepository,
     });
 
+    // Handle case when no blogs are found
     if (!teamMember) {
       throw new NotFoundException('No team member data found');
     }
@@ -109,15 +105,107 @@ export class BlogsService {
     return teamMember;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} blog`;
+  public async findOne(id: string): Promise<Blog> {
+    const blog = await this.blogRepository.findOne({
+      where: {
+        id,
+      },
+      relations: ['teamMember', 'teamMember.designation', 'blogCategory'],
+      select: {
+        teamMember: {
+          name: true,
+          photo: true,
+          designation: {
+            name: true,
+          },
+        },
+        blogCategory: {
+          name: true,
+        },
+      },
+    });
+    if (!blog) {
+      throw new BadRequestException('No blog  data found');
+    }
+    return blog;
+  }
+  public async update(
+    id: string,
+    updateBlogDto: UpdateBlogDto,
+    file?: Express.Multer.File,
+  ): Promise<Blog> {
+    // ⚠️ Validate ID presence - required for update operation
+    if (!id) {
+      throw new BadRequestException('Blog ID is required');
+    }
+
+    // 🔍 Find existing teamMember by ID
+    const blog = await this.blogRepository.findOneBy({ id });
+    // 🛑 Throw error if no matching record is found
+    if (!blog) {
+      throw new NotFoundException('blog not found');
+    }
+
+    let thumbnail: string | string[] | undefined;
+
+    // 📤 If new file provided and photo exists, update the file storageHandle file upload if a new file is provided
+    if (file && blog.thumbnail) {
+      thumbnail = await this.fileUploadsService.updateFileUploads({
+        oldFile: blog.thumbnail,
+        currentFile: file,
+      });
+    }
+
+    // 📤 If new file provided and photo does not exist, upload the new file
+    if (file && !blog.thumbnail) {
+      thumbnail = await this.fileUploadsService.fileUploads(file);
+    }
+
+    // 📤 If no file provided, keep the existing photo
+    updateBlogDto.thumbnail = thumbnail as string | undefined;
+
+    // 🏗️ Merge the existing entity with the new data
+    Object.assign(blog, updateBlogDto);
+
+    // 💾 Save the updated entity back to the database
+    return await this.blogRepository.save(blog);
   }
 
-  update(id: number, updateBlogDto: UpdateBlogDto) {
-    return `This action updates a #${id} blog`;
-  }
+  public async remove(id: string): Promise<{ message: string }> {
+    // ⚠️ Validate ID presence - required for delete operation
+    if (!id) {
+      throw new BadRequestException('ID is required');
+    }
+    try {
+      // 🔍 Find existing teamMember by ID
+      const blog = await this.blogRepository.findOneBy({ id });
 
-  remove(id: number) {
-    return `This action removes a #${id} blog`;
+      // 🛑 Throw error if no matching record is found
+      if (!blog) {
+        throw new NotFoundException('Blog not found');
+      }
+
+      // 🗑️ Delete the associated file if it exists
+      if (blog.thumbnail) {
+        const deleteFile = await this.fileUploadsService.deleteFileUploads(
+          blog.thumbnail,
+        );
+
+        // 🛑 Throw error if file deletion fails
+        if (!deleteFile) {
+          throw new BadRequestException('Failed to delete associated file');
+        }
+      }
+
+      // 🗑️ Delete the blog record from the database
+      await this.blogRepository.delete(blog);
+
+      // 🏁 Return success message
+      return {
+        message: 'Blog deleted successfully',
+      };
+    } catch (error) {
+      throw new BadRequestException(error.message || 'Failed to delete record');
+    }
   }
 }

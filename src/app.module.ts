@@ -28,6 +28,7 @@ import { TeamMemberSkillsModule } from './app/modules/team-member-skills/team-me
 import { TeamMemberSocialLinksModule } from './app/modules/team-member-social-links/team-member-social-links.module';
 import { BlogCategoriesModule } from './app/modules/blog-categories/blog-categories.module';
 import { BlogsModule } from './app/modules/blogs/blogs.module';
+import { BlogDetailsModule } from './app/modules/blog-details/blog-details.module';
 
 /**
  * // Get environment (development/production/etc.)
@@ -89,6 +90,7 @@ const ENV = process.env.NODE_ENV;
     TeamMemberSocialLinksModule,
     BlogCategoriesModule,
     BlogsModule,
+    BlogDetailsModule,
   ],
   controllers: [AppController],
   providers: [

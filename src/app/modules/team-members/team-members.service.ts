@@ -194,6 +194,7 @@ export class TeamMembersService {
     // 💾 Save the updated entity back to the database
     return await this.teamMemberRepository.save(teamMember);
   }
+
   public async remove(id: string): Promise<{ message: string }> {
     // ⚠️ Validate ID presence - required for delete operation
     if (!id) {

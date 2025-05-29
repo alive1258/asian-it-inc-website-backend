@@ -45,12 +45,19 @@ export class DataQueryService {
 
     // Dynamically join relations based on the passed relations array
     relations.forEach((relation) => {
-      queryBuilder.leftJoinAndSelect(`entity.${relation}`, relation);
-      // if (relation === 'designation') {
-      //   queryBuilder.andWhere(`${relation}.status = :status`, { status: true });
-      // }
+      if (!relation.includes('.')) {
+        queryBuilder.leftJoinAndSelect(`entity.${relation}`, relation);
+      }
     });
-    // 👉 Only show entities where designation.status = true
+
+    // Dynamically join nested relations
+    relations.forEach((relation) => {
+      if (relation.includes('.')) {
+        const relationAlias = relation.replace(/\./g, '_');
+        const [alias, column] = relation.split('.');
+        queryBuilder.leftJoinAndSelect(`${alias}.${column}`, relationAlias);
+      }
+    });
 
     // Apply select only to relational fields while keeping all entity fields
     if (selectRelations.length > 0) {
@@ -104,12 +111,22 @@ export class DataQueryService {
 
     // Dynamically calculate sum fields
     const sumQueryBuilder = repository.createQueryBuilder('entity');
-
     // Dynamically join relations based on the passed relations array
     relations.forEach((relation) => {
-      sumQueryBuilder.leftJoinAndSelect(`entity.${relation}`, relation);
+      if (!relation.includes('.')) {
+        sumQueryBuilder.leftJoinAndSelect(`entity.${relation}`, relation);
+      }
     });
-    // Dynamically calculate sum fields
+
+    // Dynamically join nested relations
+    relations.forEach((relation) => {
+      if (relation.includes('.')) {
+        const relationAlias = relation.replace(/\./g, '_');
+        const [alias, column] = relation.split('.');
+        sumQueryBuilder.leftJoinAndSelect(`${alias}.${column}`, relationAlias);
+      }
+    });
+
     // Dynamically calculate sum fields
     if (sumFields.length > 0) {
       // Add SUM for each specified field

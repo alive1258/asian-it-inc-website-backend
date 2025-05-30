@@ -26,7 +26,7 @@ export class SignInProvider {
     private readonly hashingProvider: HashingProvider,
 
     private readonly mailService: MailService,
-  ) {}
+  ) { }
 
   public async signIn(signInDto: SignInDto) {
     // 1. Find user by email
@@ -38,10 +38,6 @@ export class SignInProvider {
       throw new NotFoundException("User couldn't found! Check your email.");
     }
 
-    // 2. Check if user is verified
-    if (user.is_verified === false) {
-      throw new NotFoundException('User is not verified.');
-    }
 
     //compare password to the hash
     let isEqual: boolean = false;

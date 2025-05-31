@@ -10,6 +10,7 @@ import {
   UseGuards,
   UseInterceptors,
   Req,
+  Query,
 } from '@nestjs/common';
 import { BlogDetailsService } from './blog-details.service';
 import { CreateBlogDetailDto } from './dto/create-blog-detail.dto';
@@ -18,8 +19,9 @@ import { AuthenticationGuard } from 'src/app/auth/guards/authentication.guard';
 import { IpDeviceThrottlerGuard } from 'src/app/auth/decorators/ip-device-throttler-guard';
 import { Throttle } from '@nestjs/throttler';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { Request } from 'express';
+import { GetBlogDetailDto } from './dto/get-blog-detail.dto';
 
 @Controller('blog-details')
 export class BlogDetailsController {
@@ -46,13 +48,35 @@ export class BlogDetailsController {
   }
 
   @Get()
-  findAll() {
-    return this.blogDetailsService.findAll();
+  @ApiOperation({
+    summary: 'Get all blogs Details with filters and pagination.',
+  })
+  @ApiQuery({ name: 'limit', required: false, type: String, example: '10' })
+  @ApiQuery({ name: 'page', required: false, type: String, example: '1' })
+  @ApiQuery({ name: 'search', required: false, type: String, example: 'John' })
+  @ApiQuery({
+    name: 'anyFilterField',
+    required: false,
+    type: String,
+    example: 'active',
+    description: 'Any custom filter field (e.g., status).',
+  })
+  findAll(@Query() getBlogDetailDto: GetBlogDetailDto) {
+    return this.blogDetailsService.findAll(getBlogDetailDto);
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Get a single blog by ID.' })
+  @ApiParam({
+    name: 'id',
+    type: 'string',
+    description: 'Blog ID.',
+    example: '1',
+  })
+  @ApiResponse({ status: 200, description: 'Blog found.' })
+  @ApiResponse({ status: 404, description: 'Blog not found.' })
   findOne(@Param('id') id: string) {
-    return this.blogDetailsService.findOne(+id);
+    return this.blogDetailsService.findOne(id);
   }
 
   @UseGuards(AuthenticationGuard, IpDeviceThrottlerGuard)
@@ -79,8 +103,22 @@ export class BlogDetailsController {
     return this.blogDetailsService.update(id, updateBlogDetailDto, files);
   }
 
+  @UseGuards(AuthenticationGuard, IpDeviceThrottlerGuard)
+  @Throttle({ default: { limit: 6, ttl: 180 } })
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete a blog by ID.' })
+  @ApiParam({
+    name: 'id',
+    type: 'string',
+    description: 'Blog ID.',
+    example: '1',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Blog deleted successfully.',
+  })
+  @ApiResponse({ status: 404, description: 'Blog not found.' })
   remove(@Param('id') id: string) {
-    return this.blogDetailsService.remove(+id);
+    return this.blogDetailsService.remove(id);
   }
 }

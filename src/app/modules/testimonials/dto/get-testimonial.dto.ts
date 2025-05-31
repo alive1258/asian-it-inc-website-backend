@@ -1,49 +1,54 @@
-import { IntersectionType } from '@nestjs/swagger';
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { ApiPropertyOptional, IntersectionType } from '@nestjs/swagger';
+import { IsOptional, IsString } from 'class-validator';
 import { PaginationQueryDto } from 'src/app/common/data-query/dto/data-query.dto';
 
 /**
- * Base DTO for querying testimonials
+ * Base DTO for filtering testimonials
  */
 class GetTestimonialsBaseDto {
-  /**
-   * Filter by customer name (optional)
-   */
-  @IsString()
+  @ApiPropertyOptional({
+    description: 'Filter by the client ID.',
+    example: 'client_12345',
+  })
   @IsOptional()
-  'name'?: string;
+  @IsString({ message: 'Client ID must be a string.' })
+  client_id?: string;
 
-  /**
-   * Filter by customer photo filename or URL (optional)
-   */
-  @IsString()
+  @ApiPropertyOptional({
+    description: 'Filter by the service ID.',
+    example: 'service_abc',
+  })
   @IsOptional()
-  'photo'?: string;
+  @IsString({ message: 'Service ID must be a string.' })
+  service_id?: string;
 
-  /**
-   * Filter by customer review rating (optional)
-   */
-  @IsNumber()
+  @ApiPropertyOptional({
+    description: 'Filter by the designation ID.',
+    example: 'designation_ceo',
+  })
   @IsOptional()
-  'review'?: number;
+  @IsString({ message: 'Designation ID must be a string.' })
+  designation_id?: string;
 
-  /**
-   * Filter by customer designation (optional)
-   */
-  @IsString()
+  @ApiPropertyOptional({
+    description: 'Filter by review rating (as string).',
+    example: '5',
+  })
   @IsOptional()
-  'designation'?: string;
+  @IsString({ message: 'Review must be a string.' }) // optionally, you can make this IsNumberString()
+  review?: string;
 
-  /**
-   * Filter by customer message/testimonial (optional)
-   */
-  @IsString()
+  @ApiPropertyOptional({
+    description: 'Filter by customer comments or testimonial text.',
+    example: 'Excellent service!',
+  })
   @IsOptional()
-  'massage'?: string;
+  @IsString({ message: 'Comments must be a string.' })
+  comments?: string;
 }
 
 /**
- * DTO for querying testimonials with pagination support
+ * DTO for querying testimonials with filters and pagination
  */
 export class GetTestimonialsDto extends IntersectionType(
   GetTestimonialsBaseDto,

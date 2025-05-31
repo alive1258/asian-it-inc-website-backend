@@ -11,7 +11,6 @@ import { Request } from 'express';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Blog } from './entities/blog.entity';
 import { Repository } from 'typeorm';
-
 import { FileUploadsService } from 'src/app/common/file-uploads/file-uploads.service';
 import { DataQueryService } from 'src/app/common/data-query/data-query.service';
 import { GetBlogDto } from './dto/get-blog.dto';
@@ -128,6 +127,7 @@ export class BlogsService {
     }
     return blog;
   }
+
   public async update(
     id: string,
     updateBlogDto: UpdateBlogDto,

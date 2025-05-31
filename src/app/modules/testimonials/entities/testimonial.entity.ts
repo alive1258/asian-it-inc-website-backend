@@ -2,13 +2,18 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Client } from '../../system-table/clients/entities/client.entity';
+import { Service } from '../../system-table/services/entities/service.entity';
+import { Designation } from '../../designations/entities/designation.entity';
 
 /**
  * Testimonial Entity
- * Represents a customer's testimonial with their personal information, review, and feedback.
+ * Represents a customer's testimonial with associated client, service, and designation.
  */
 @Entity({ name: 'testimonials' })
 export class Testimonial {
@@ -19,69 +24,62 @@ export class Testimonial {
   id: string;
 
   /**
-   * Customer Name
-   * Max length: 128 characters
+   * Foreign Key - Client ID
    */
-  @Column({
-    type: 'varchar',
-    nullable: false,
-  })
-  name: string;
+  @Column({ type: 'bigint' })
+  client_id: string;
+
+  @ManyToOne(() => Client, { nullable: false })
+  @JoinColumn({ name: 'client_id' })
+  client: Client;
 
   /**
-   * Customer Photo (URL or filename)
-   * Optional field: can be null if not provided
+   * Foreign Key - Service ID
    */
-  @Column({
-    type: 'varchar',
-    nullable: true, // Made optional (can be null)
-  })
-  photo: string;
+  @Column({ type: 'bigint' })
+  service_id: string;
+
+  @ManyToOne(() => Service, { nullable: false })
+  @JoinColumn({ name: 'service_id' })
+  service: Service;
 
   /**
-   * Customer Review Rating (e.g., numeric rating)
+   * Foreign Key - Designation ID
    */
-  @Column({
-    type: 'int', // Changed to 'int' for numeric values, which is more suitable for ratings
-    nullable: false,
-  })
+  @Column({ type: 'bigint' })
+  designation_id: string;
+
+  @ManyToOne(() => Designation, { nullable: false })
+  @JoinColumn({ name: 'designation_id' })
+  designation: Designation;
+
+  /**
+   * Customer review comments
+   */
+  @Column({ type: 'varchar', nullable: false })
+  comments: string;
+
+  /**
+   * Customer review rating (e.g., 1–5)
+   */
+  @Column({ type: 'int', nullable: false })
   review: number;
 
   /**
-   * Customer Designation (e.g., Manager, CEO, etc.)
-   * Max length: 128 characters
-   */
-  @Column({
-    type: 'varchar',
-    nullable: false,
-  })
-  designation: string;
-
-  /**
-   * Customer's Testimonial Message
-   * Max length: 1024 characters
-   */
-  @Column({
-    type: 'varchar',
-    nullable: false,
-    // Increased length to accommodate longer messages
-  })
-  message: string;
-
-  /**
-   * User Id
+   * ID of the user who added this testimonial
    */
   @Column({ type: 'bigint' })
   added_by: string;
+
   /**
-   * Date of creation
+   * Timestamp when the testimonial was created
    */
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_at' })
   created_at: Date;
 
   /**
-   * Date of last update
+   * Timestamp when the testimonial was last updated
    */
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'updated_at' })
   updated_at: Date;
 }

@@ -1,67 +1,49 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-  MaxLength,
-} from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString, MaxLength } from 'class-validator';
 
 export class CreateTestimonialDto {
-  /**
-   * Customer Name
-   */
   @ApiProperty({
-    description: 'Customer Name',
-    example: 'Example Customer name',
+    description: 'ID of the client providing the testimonial',
+    example: 'client_12345',
   })
   @IsString()
   @IsNotEmpty()
   @MaxLength(128)
-  name: string;
+  client_id: string;
 
-  /**
-   * Customer Photo (optional)
-   */
   @ApiProperty({
-    description: 'Customer Photo',
-    example: 'Customer photo.jpg',
-    required: false, // Marking as optional in Swagger docs
+    description: 'ID of the service the testimonial is related to',
+    example: 'service_67890',
   })
   @IsString()
-  @IsOptional()
-  photo?: string;
+  @IsNotEmpty()
+  @MaxLength(128)
+  service_id: string;
 
-  /**
-   * Customer Review Rating
-   */
   @ApiProperty({
-    description: 'Customer review rating (e.g., 1 to 5)',
+    description: 'ID of the designation/job title for the client',
+    example: 'designation_ceo',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(128)
+  designation_id: string;
+
+  @ApiProperty({
+    description: 'Rating given by the client (1 to 5)',
     example: 5,
+    minimum: 1,
+    maximum: 5,
   })
   @IsNumber()
   @IsNotEmpty()
   review: number;
 
-  /**
-   * Customer Designation
-   */
   @ApiProperty({
-    description: 'Customer designation or job title',
-    example: 'CEO, Manager, Director',
+    description: 'Client comments or testimonial content',
+    example: 'This service exceeded my expectations!',
   })
   @IsString()
   @IsNotEmpty()
-  designation: string;
-
-  /**
-   * Customer Message
-   */
-  @ApiProperty({
-    description: 'Customer testimonial message',
-    example: 'This company provided outstanding service!',
-  })
-  @IsString()
-  @IsNotEmpty()
-  message: string;
+  comments: string;
 }

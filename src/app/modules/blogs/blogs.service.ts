@@ -21,7 +21,6 @@ export class BlogsService {
   constructor(
     @InjectRepository(Blog)
     private readonly blogRepository: Repository<Blog>,
-
     private readonly fileUploadsService: FileUploadsService,
     private readonly dataQueryService: DataQueryService,
   ) {}

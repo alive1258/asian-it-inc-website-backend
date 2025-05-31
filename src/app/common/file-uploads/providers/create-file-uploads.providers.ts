@@ -13,7 +13,7 @@ export class FileUploadsProvider {
   constructor(
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
   /**
    * Handles uploading of one or multiple image files.
    *
@@ -64,10 +64,10 @@ export class FileUploadsProvider {
 
           // If the file needs to be uploaded (e.g., to an external service)
           if (file.mimetype === 'application/octet-stream' || file.buffer) {
+
             const blob = new Blob([file.buffer], { type: file.mimetype });
             const formData = new FormData();
             formData.append('file', blob, imageFile);
-
             try {
               const imageUploadUrl = this.configService.get<string>(
                 'appConfig.imageUploadUrl',
@@ -82,10 +82,10 @@ export class FileUploadsProvider {
                   },
                 },
               );
-
               // Return the uploaded file name
               return response.data.name;
             } catch (error) {
+              console.log(error, "error")
               throw new BadRequestException(
                 `File upload failed: ${error.message}`,
               );

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Transporter, createTransport } from 'nodemailer';
+import { SmtpConfig } from '../../smtp/entities/smtp-config.entity';
 
 @Injectable()
 export class MailTransporter {
@@ -10,16 +11,16 @@ export class MailTransporter {
      */
 
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
-  public async createTransporter(): Promise<Transporter> {
+  public async createTransporter(emailConfig: SmtpConfig): Promise<Transporter> {
     return createTransport({
-      host: this.configService.get('appConfig.mailHost'),
-      port: this.configService.get('appConfig.mailPort'),
-      secure: this.configService.get('appConfig.secure'),
+      host: emailConfig.mail_host,
+      port: emailConfig.mail_port,
+      secure: emailConfig.mail_encryption,
       auth: {
-        user: this.configService.get('appConfig.smtpUserName'),
-        pass: this.configService.get('appConfig.smtpPassword'),
+        user: emailConfig.mail_username,
+        pass: emailConfig.mail_password,
       },
       tls: {
         // Add this to allow self-signed certificates
@@ -27,29 +28,4 @@ export class MailTransporter {
       },
     });
   }
-  // public async sendMail(options: SendMailOptions) {
-  //   return this.transporter.sendMail(options);
-  // }
 }
-
-// src/mail/providers/mailTransporter.provider.ts
-// import { Injectable } from '@nestjs/common';
-// import * as nodemailer from 'nodemailer';
-// import { SendMailOptions } from 'nodemailer';
-
-// @Injectable()
-// export class MailTransporter {
-//   private transporter = nodemailer.createTransport({
-//     host: process.env.MAIL_HOST,
-//     port: parseInt(process.env.MAIL_PORT ?? '2525', 10),
-//     secure: process.env.MAIL_SECURE === 'true',
-//     auth: {
-//       user: process.env.SMTP_USERNAME,
-//       pass: process.env.SMTP_PASSWORD,
-//     },
-//   });
-
-//   public async sendMail(options: SendMailOptions) {
-//     return this.transporter.sendMail(options);
-//   }
-// }

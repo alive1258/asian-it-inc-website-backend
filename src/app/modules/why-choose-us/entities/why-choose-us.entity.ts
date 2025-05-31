@@ -2,7 +2,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 
-@Entity('why_choose')
+@Entity('why_choose-us')
 export class WhyChoose {
   @PrimaryGeneratedColumn()
   @ApiProperty()

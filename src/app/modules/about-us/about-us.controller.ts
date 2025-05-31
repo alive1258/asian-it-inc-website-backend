@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Request } from 'express';
 import { CreateAboutUsDto } from './dtos/create-about-us.dto';
@@ -6,12 +6,14 @@ import { AboutUsService } from './about-us.service';
 import { AuthenticationGuard } from 'src/app/auth/guards/authentication.guard';
 import { IpDeviceThrottlerGuard } from 'src/app/auth/decorators/ip-device-throttler-guard';
 import { Throttle } from '@nestjs/throttler';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('about-us')
 export class AboutUsController {
   constructor(private readonly aboutUsService: AboutUsService) { }
   @UseGuards(AuthenticationGuard, IpDeviceThrottlerGuard)
   @Throttle({ default: { limit: 20, ttl: 180 } })
+  @UseInterceptors(FileInterceptor('banner_image'))
   @Post()
   @ApiOperation({ summary: 'Create a  about us.' })
   @ApiResponse({
@@ -23,7 +25,20 @@ export class AboutUsController {
   create(
     @Req() req: Request,
     @Body() createAboutUsDto: CreateAboutUsDto,
+    @UploadedFile() file?: Express.Multer.File,
   ) {
-    return this.aboutUsService.createOrUpdate(req, createAboutUsDto);
+    return this.aboutUsService.createOrUpdate(req, createAboutUsDto, file);
   }
+
+  @Get()
+  @ApiOperation({ summary: 'Get a about info' })
+  @ApiResponse({
+    status: 200,
+    description: 'Get about us info .',
+  })
+  @ApiResponse({ status: 404, description: 'Reason not found.' })
+  findOne() {
+    return this.aboutUsService.findOne();
+  }
+
 }

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, Req } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, Req, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { WhyChoose } from './entities/why-choose-us.entity';
@@ -15,9 +15,23 @@ export class WhyChooseUsService {
   ) { }
 
   async create(req: Request, dto: CreateWhyChooseDto): Promise<WhyChoose> {
-    const entry = this.whyChooseRepo.create({ ...dto });
+    const user_id = req?.user?.sub;
+    if (!user_id) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    const existing = await this.whyChooseRepo.findOne({
+      where: { title: dto.title },
+    });
+
+    if (existing) {
+      throw new BadRequestException('Why choose us entry already exists');
+    }
+
+    const entry = this.whyChooseRepo.create({ ...dto, added_by: user_id });
     return this.whyChooseRepo.save(entry);
   }
+
 
   async findAll(): Promise<WhyChoose[]> {
     return this.whyChooseRepo.find({ order: { id: 'ASC' } });

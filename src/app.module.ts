@@ -31,6 +31,8 @@ import { BlogsModule } from './app/modules/blogs/blogs.module';
 import { BlogDetailsModule } from './app/modules/blog-details/blog-details.module';
 import { AboutUsModule } from './app/modules/about-us/about-us.module';
 import { WhyChooseUsModule } from './app/modules/why-choose-us/why-choose-us.module';
+import { ContactUsModule } from './app/modules/contact-us/contact-us.module';
+import { SmtpModule } from './app/modules/smtp/smtp.module';
 
 /**
  * // Get environment (development/production/etc.)
@@ -98,6 +100,9 @@ const ENV = process.env.NODE_ENV;
     BlogDetailsModule,
     AboutUsModule,
     WhyChooseUsModule,
+    ContactUsModule,
+    SmtpModule,
+
   ],
   controllers: [AppController],
   providers: [

@@ -6,6 +6,9 @@ import { User } from '../users/entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { MailTransporter } from './providers/mailTransporter.provider';
 import { Transporter } from 'nodemailer';
+import { SmtpService } from '../smtp/smtp.service';
+import { NotFoundError } from 'rxjs';
+import { ContactEmailVerificationOtp } from '../contact-us/entities/contact-email-verification-otp.entity';
 
 @Injectable()
 export class MailService {
@@ -16,12 +19,15 @@ export class MailService {
 
     @InjectRepository(OTP)
     private readonly userOTPRepository: Repository<OTP>,
+    @InjectRepository(ContactEmailVerificationOtp)
+    private readonly contactEmailVerificationOtpRepository: Repository<ContactEmailVerificationOtp>,
+    private readonly smtpService: SmtpService, // ✅ works now
 
     /**
      * Inject mailTransporter
      */
     private mailTransporter: MailTransporter,
-  ) {}
+  ) { }
 
   /**
    * Send OTP
@@ -63,6 +69,7 @@ export class MailService {
       to: user.email,
       subject: 'Verify Your OTP',
       html: htmlContent,
+      id: 1,
     });
 
     return newOtpDate;
@@ -158,6 +165,7 @@ export class MailService {
       to: user.email,
       subject: 'Verify Your OTP',
       html: htmlContent,
+      id: 1,
     });
 
     return existOtp;
@@ -201,18 +209,23 @@ export class MailService {
     to,
     subject,
     html,
-    from,
+    id,
+
   }: {
     to: string;
     subject: string;
     html: string;
     from?: string;
+    id?: number;
   }): Promise<void> {
+
     try {
+
+      const emailConfig = await this.smtpService.findOne(id);
       const transporter: Transporter =
-        await this.mailTransporter.createTransporter();
+        await this.mailTransporter.createTransporter(emailConfig);
       const result = await transporter.sendMail({
-        from: from ? `no-reply@${from}` : 'support@findrmeet.com',
+        from: `"Asianitinc"${emailConfig?.mail_username}`,
         to,
         subject,
         html,
@@ -226,4 +239,44 @@ export class MailService {
       });
     }
   }
+
+
+  public async contactEmailVerification(email: string) {
+
+    try {
+      const otp_code = Math.floor(1000 + Math.random() * 9000).toString();
+      const htmlContent = `
+  <div style="font-family: Arial, sans-serif; text-align: center; padding: 20px;">
+    <h2 style="color: #333;">Verify Your Contact Request</h2>
+    <p style="font-size: 16px;">
+      Thank you for reaching out to us. To confirm your contact request, please use the following One-Time Password (OTP):
+    </p>
+    <p style="font-size: 24px; font-weight: bold; color: #007bff;">${otp_code}</p>
+    <p style="font-size: 14px; color: #555;">
+      Enter this OTP in the verification form to complete your request. This code is valid for a limited time.
+    </p>
+    <p style="font-size: 14px; color: #999; margin-top: 20px;">
+      If you did not initiate this request, please ignore this email.
+    </p>
+  </div>
+`;
+      const expire_at = new Date(Date.now() + 60000);
+      await this.contactEmailVerificationOtpRepository.save({
+        email,
+        otp_code,
+        expire_at,
+      });
+
+      return await this.sendEmail({
+        to: email,
+        subject: 'Contact Email verification',
+        html: htmlContent,
+        id: 1,
+      });
+
+    } catch (error) {
+      throw error;
+    }
+  }
+
 }

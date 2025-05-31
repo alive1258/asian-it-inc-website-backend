@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsNumberString } from 'class-validator';
+import { IsNotEmpty, IsString, IsNumberString, IsOptional } from 'class-validator';
 
 export class CreateAboutUsDto {
   @ApiProperty({ example: 'Welcome to Our Company' })
@@ -13,9 +13,9 @@ export class CreateAboutUsDto {
   description: string;
 
   @ApiProperty({ example: 'banner.jpg' })
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  banner_image: string;
+  banner_image?: string;
 
   // Success project
   @ApiProperty({ example: 'Successful Projects' })

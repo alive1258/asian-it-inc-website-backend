@@ -3,6 +3,7 @@ import {
   Injectable,
   Param,
   ParseIntPipe,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { CreateTestimonialDto } from './dto/create-testimonial.dto';
 import { UpdateTestimonialDto } from './dto/update-testimonial.dto';
@@ -23,64 +24,72 @@ export class TestimonialsService {
      */
     @InjectRepository(Testimonial)
     private readonly testimonialsRepository: Repository<Testimonial>,
-
-    /**
-     * Inject Services
-     */
-    private readonly fileUploadsService: FileUploadsService,
     private readonly dataQueryService: DataQueryService,
-    private readonly dataSource: DataSource,
   ) {}
 
-  /**
-   * Create a new testimonial
-   * @param createTestimonialDto - data for the new testimonial
-   * @returns newly created testimonial
-   */
   public async create(
     req: Request,
     createTestimonialDto: CreateTestimonialDto,
-    file?: Express.Multer.File,
   ): Promise<Testimonial> {
     const user_id = req?.user?.sub;
-
+    // 1. Check if user is authenticated
     if (!user_id) {
-      throw new BadRequestException('User ID is required.You have to sing in!');
+      throw new UnauthorizedException(
+        'You must be signed in to access this resource.',
+      );
     }
 
-    // Handle file upload if file is present
-    let photo: string | undefined;
-
-    if (file) {
-      const uploaded = await this.fileUploadsService.fileUploads(file);
-      photo = Array.isArray(uploaded) ? uploaded[0] : uploaded;
-    }
-    //create new testimonial
-    let newTestimonials = this.testimonialsRepository.create({
+    // 3. Create and save the new entry
+    const newEntry = this.testimonialsRepository.create({
       ...createTestimonialDto,
+      client_id: createTestimonialDto.client_id,
+      designation_id: createTestimonialDto.designation_id,
+      service_id: createTestimonialDto.service_id,
       added_by: user_id,
-      photo: photo || undefined,
     });
-    const result = await this.testimonialsRepository.save(newTestimonials);
-    return result;
+    return this.testimonialsRepository.save(newEntry);
   }
 
-  public findAll(
+  public async findAll(
     getTestimonialsDto: GetTestimonialsDto,
   ): Promise<IPagination<Testimonial>> {
-    const searchableFields = ['name', 'designation'];
-    const { page, limit, search, ...filters } = getTestimonialsDto;
-    const testimonials = this.dataQueryService.dataQuery({
+    // Fields that can be searched by keyword
+    const searchableFields = ['review', 'comment'];
+    const relations = ['client', 'service', 'designation'];
+    const select = [
+      'id',
+      'client_id',
+      'designation_id',
+      'service_id',
+      'review',
+      'comment',
+      'created_at',
+    ];
+    const selectRelations = ['client.name', 'service.name', 'designation.name'];
+
+    // Extract pagination and search params
+    const { limit, page, search, ...filters } = getTestimonialsDto;
+
+    // Query database using DataQueryService abstraction
+    const testimonial = await this.dataQueryService.dataQuery({
       paginationQuery: { limit, page, search, filters },
       searchableFields,
+      relations,
+      select,
+      selectRelations,
+
       repository: this.testimonialsRepository,
     });
-    return testimonials;
+    // check if collaborate is empty
+    if (!testimonial) {
+      throw new BadRequestException('No Testimonial  data found');
+    }
+    return testimonial;
   }
 
-  public async findOne(id: number): Promise<Testimonial> {
+  public async findOne(id: string): Promise<Testimonial> {
     const testimonials = await this.testimonialsRepository.findOne({
-      where: { id: id.toString() },
+      where: { id },
     });
 
     if (!testimonials) {
@@ -93,8 +102,7 @@ export class TestimonialsService {
   public async update(
     id: string,
     updateTestimonialDto: UpdateTestimonialDto,
-    file?: Express.Multer.File,
-  ) {
+  ): Promise<Testimonial> {
     if (!id) {
       throw new BadRequestException('Testimonial ID is required! signing in!');
     }
@@ -104,28 +112,19 @@ export class TestimonialsService {
       throw new BadRequestException('Testimonial not found!');
     }
 
-    let photo: string | string[] | undefined;
-    if (file && testimonial.photo) {
-      photo = await this.fileUploadsService.updateFileUploads({
-        oldFile: testimonial.photo,
-        currentFile: file,
-      });
-    }
-
-    if (file && !testimonial.photo) {
-      photo = await this.fileUploadsService.fileUploads(file);
-    }
-    updateTestimonialDto.photo = photo as string | undefined;
     Object.assign(testimonial, updateTestimonialDto);
     return await this.testimonialsRepository.save(testimonial);
   }
 
-  public async remove(id: number): Promise<{ message: string }> {
+  public async remove(id: string): Promise<{ message: string }> {
+    if (!id) {
+      throw new BadRequestException('Testimonial ID is required');
+    }
     const testimonial = await this.findOne(id);
     if (!testimonial) {
-      throw new BadRequestException(`Testimonial  ${id} not found`);
+      throw new BadRequestException(`Testimonial   not found`);
     }
     await this.testimonialsRepository.remove(testimonial);
-    return { message: `Testimonial with ID ${id} has been removed` };
+    return { message: `Testimonial  has been removed` };
   }
 }

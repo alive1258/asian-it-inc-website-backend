@@ -29,6 +29,9 @@ import { TeamMemberSocialLinksModule } from './app/modules/team-member-social-li
 import { BlogCategoriesModule } from './app/modules/blog-categories/blog-categories.module';
 import { BlogsModule } from './app/modules/blogs/blogs.module';
 import { BlogDetailsModule } from './app/modules/blog-details/blog-details.module';
+import { FaqModule } from './app/modules/faq/faq.module';
+import { ServicesModule } from './app/modules/system-table/services/services.module';
+import { ClientsModule } from './app/modules/system-table/clients/clients.module';
 
 /**
  * // Get environment (development/production/etc.)
@@ -67,6 +70,9 @@ const ENV = process.env.NODE_ENV;
         username: ConfigService.get('database.user'),
         password: ConfigService.get('database.password'),
         database: ConfigService.get('database.name'),
+        ssl: {
+          rejectUnauthorized: false,
+        },
         autoLoadEntities: ConfigService.get('database.autoLoadEntities'),
         synchronize: ConfigService.get('database.synchronize'),
       }),
@@ -91,6 +97,9 @@ const ENV = process.env.NODE_ENV;
     BlogCategoriesModule,
     BlogsModule,
     BlogDetailsModule,
+    FaqModule,
+    ServicesModule,
+    ClientsModule,
   ],
   controllers: [AppController],
   providers: [

@@ -14,6 +14,8 @@ import { FileUploadsService } from 'src/app/common/file-uploads/file-uploads.ser
 import { DataQueryService } from 'src/app/common/data-query/data-query.service';
 import { Request } from 'express';
 import { UpdateBlogCategoryDto } from './../blog-categories/dto/update-blog-category.dto';
+import { GetBlogDetailDto } from './dto/get-blog-detail.dto';
+import { IPagination } from 'src/app/common/data-query/pagination.interface';
 
 @Injectable()
 export class BlogDetailsService {
@@ -47,14 +49,15 @@ export class BlogDetailsService {
       throw new UnauthorizedException('Blog Detail already exist');
     }
 
-    let photo;
+    let photo: string[] | undefined;
 
     // 📤 Handle optional file upload
     if (files) {
       const uploaded = await this.fileUploadsService.fileUploads(files);
-      console.log(uploaded, 'uploaded.........');
+
       // 📁 Use the uploaded photo path (single or from array)
-      photo = uploaded;
+      // photo = uploaded;
+      photo = Array.isArray(uploaded) ? uploaded : [uploaded];
     }
     // 🏗️ Create a new teamMember entity with user and optional photo
     const teamMember = this.blogDetailRepository.create({
@@ -68,14 +71,60 @@ export class BlogDetailsService {
     return await this.blogDetailRepository.save(teamMember);
   }
 
-  findAll() {
-    return `This action returns all blogDetails`;
+  public async findAll(
+    getBlogDto: GetBlogDetailDto,
+  ): Promise<IPagination<BlogDetail>> {
+    // Define which fields are searchable
+    const searchableFields = ['title'];
+
+    // Define related entities to join (eager loading)
+    const relations = ['blog'];
+    const selectRelations = [
+      'blog.blog_title',
+      'blog.thumbnail',
+      'blog.blog_tags',
+      'blog.reading_time',
+    ];
+
+    // Destructure pagination, search term, and other filter fields from DTO
+    const { limit, page, search, ...filters } = getBlogDto;
+
+    // Query the database using the dataQueryService
+    const teamMember = await this.dataQueryService.dataQuery({
+      paginationQuery: { limit, page, search, filters },
+      searchableFields,
+      relations,
+      // select,
+      selectRelations,
+      repository: this.blogDetailRepository,
+    });
+
+    // Handle case when no blogs are found
+    if (!teamMember) {
+      throw new NotFoundException('No team member data found');
+    }
+
+    return teamMember;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} blogDetail`;
-  }
+  public async findOne(id: string): Promise<BlogDetail> {
+    const blog = await this.blogDetailRepository.findOne({
+      where: {
+        id,
+      },
+      relations: ['blog'],
+      // select: {
 
+      //   blog: {
+      //     title: true,
+      //   },
+      // },
+    });
+    if (!blog) {
+      throw new BadRequestException('No blog  data found');
+    }
+    return blog;
+  }
   public async update(
     id: string,
     updateBlogDetailDto: UpdateBlogDetailDto,
@@ -93,22 +142,56 @@ export class BlogDetailsService {
       throw new NotFoundException('blog details not found');
     }
 
-    let photo;
+    // let photo;
 
-    // 📤 If new file provided and photo exists, update the file storageHandle file upload if a new file is provided
-    if (files && blog?.photo?.length) {
-      blog?.photo?.map(async (ph, index) => {
-        const img = await this.fileUploadsService.updateFileUploads({
-          oldFile: ph,
-          currentFile: files[index],
-        });
-        photo?.push(img);
-      });
-    }
+    // // 📤 If new file provided and photo exists, update the file storageHandle file upload if a new file is provided
+    // if (files && blog?.photo?.length) {
+    //   blog?.photo?.map(async (ph, index) => {
+    //     const img = await this.fileUploadsService.updateFileUploads({
+    //       oldFile: ph,
+    //       currentFile: files[index],
+    //     });
+    //     photo?.push(img);
+    //   });
+    // }
 
     // 📤 If new file provided and photo does not exist, upload the new file
-    if (files && !blog?.photo?.length) {
-      photo = await this.fileUploadsService.fileUploads(files);
+    // if (files && !blog?.photo?.length) {
+    //   photo = await this.fileUploadsService.fileUploads(files);
+    // }
+    let photo: string[] | undefined;
+
+    // ✅ If files are provided and previous photos exist, update them one by one
+    if (files && blog.photo?.length) {
+      photo = [];
+
+      for (let index = 0; index < files.length; index++) {
+        const oldFile = blog.photo[index];
+        const newFile = files[index];
+
+        // If there is a new file at this index, update it
+        if (newFile) {
+          const updated = await this.fileUploadsService.updateFileUploads({
+            oldFile,
+            currentFile: newFile,
+          });
+          photo.push(updated);
+        } else if (oldFile) {
+          // Keep old image if no new file is provided at this index
+          photo.push(oldFile);
+        }
+      }
+    }
+
+    // ✅ If files are provided but there are no old photos, upload new ones
+    if (files && !blog.photo?.length) {
+      const uploaded = await this.fileUploadsService.fileUploads(files);
+      photo = Array.isArray(uploaded) ? uploaded : [uploaded];
+    }
+
+    // ✅ If no files are provided, keep existing photos
+    if (!files) {
+      photo = blog.photo;
     }
 
     // 📤 If no file provided, keep the existing photo
@@ -121,7 +204,43 @@ export class BlogDetailsService {
     return await this.blogDetailRepository.save(blog);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} blogDetail`;
+  public async remove(id: string): Promise<{ message: string }> {
+    // ⚠️ Validate ID presence - required for delete operation
+    if (!id) {
+      throw new BadRequestException('ID is required');
+    }
+
+    try {
+      // 🔍 Find existing blogDetail by ID
+      const blogDetail = await this.blogDetailRepository.findOneBy({ id });
+
+      // 🛑 Throw error if no matching record is found
+      if (!blogDetail) {
+        throw new NotFoundException('Blog detail not found');
+      }
+
+      // 🗑️ Delete associated files if they exist
+      if (blogDetail.photo?.length) {
+        for (const file of blogDetail.photo) {
+          const deleted = await this.fileUploadsService.deleteFileUploads(file);
+
+          if (!deleted) {
+            throw new BadRequestException(
+              'Failed to delete associated file: ' + file,
+            );
+          }
+        }
+      }
+
+      // 🗑️ Delete the blogDetail record by ID
+      await this.blogDetailRepository.delete({ id });
+
+      // 🏁 Return success message
+      return {
+        message: 'Blog deleted successfully',
+      };
+    } catch (error) {
+      throw new BadRequestException(error.message || 'Failed to delete record');
+    }
   }
 }

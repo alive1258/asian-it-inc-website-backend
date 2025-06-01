@@ -17,13 +17,13 @@ export class HomeHero {
   /**
    * Hero section title
    */
-  @Column({ type: 'text', nullable: false })
+  @Column({ type: 'varchar', nullable: false })
   title: string;
 
   /**
    * Hero section description
    */
-  @Column({ type: 'text', nullable: false })
+  @Column({ type: 'varchar', nullable: false })
   description: string;
 
   /**

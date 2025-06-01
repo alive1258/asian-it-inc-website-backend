@@ -54,7 +54,7 @@ export class TestimonialsService {
     getTestimonialsDto: GetTestimonialsDto,
   ): Promise<IPagination<Testimonial>> {
     // Fields that can be searched by keyword
-    const searchableFields = ['review', 'comment'];
+    const searchableFields = ['review', 'comments'];
     const relations = ['client', 'service', 'designation'];
     const select = [
       'id',
@@ -62,7 +62,7 @@ export class TestimonialsService {
       'designation_id',
       'service_id',
       'review',
-      'comment',
+      'comments',
       'created_at',
     ];
     const selectRelations = ['client.name', 'service.name', 'designation.name'];

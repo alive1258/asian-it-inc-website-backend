@@ -11,9 +11,11 @@ export class MailTransporter {
      */
 
     private readonly configService: ConfigService,
-  ) { }
+  ) {}
 
-  public async createTransporter(emailConfig: SmtpConfig): Promise<Transporter> {
+  public async createTransporter(
+    emailConfig: SmtpConfig,
+  ): Promise<Transporter> {
     return createTransport({
       host: emailConfig.mail_host,
       port: emailConfig.mail_port,

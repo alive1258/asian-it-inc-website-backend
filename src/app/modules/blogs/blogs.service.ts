@@ -26,7 +26,7 @@ export class BlogsService {
   ) {}
 
   public async create(
-    @Req() req: Request,
+    req: Request,
     createBlogDto: CreateBlogDto,
     file?: Express.Multer.File,
   ): Promise<Blog> {

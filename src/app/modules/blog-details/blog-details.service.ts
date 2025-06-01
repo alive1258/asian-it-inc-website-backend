@@ -2,7 +2,6 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
-  Req,
   UnauthorizedException,
 } from '@nestjs/common';
 import { CreateBlogDetailDto } from './dto/create-blog-detail.dto';
@@ -27,7 +26,7 @@ export class BlogDetailsService {
   ) {}
 
   public async create(
-    @Req() req: Request,
+    req: Request,
     createBlogDetailDto: CreateBlogDetailDto,
     files?: Express.Multer.File[],
   ): Promise<any> {

@@ -186,6 +186,7 @@ export class MailService {
       to: user.email,
       subject: 'Verify Your OTP',
       html: htmlContent,
+      id: 1,
     });
   }
 

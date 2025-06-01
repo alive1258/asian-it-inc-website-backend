@@ -30,12 +30,13 @@ import { BlogCategoriesModule } from './app/modules/blog-categories/blog-categor
 import { BlogsModule } from './app/modules/blogs/blogs.module';
 import { BlogDetailsModule } from './app/modules/blog-details/blog-details.module';
 import { FaqModule } from './app/modules/faq/faq.module';
-import { ServicesModule } from './app/modules/system-table/services/services.module';
 import { ClientsModule } from './app/modules/system-table/clients/clients.module';
 import { AboutUsModule } from './app/modules/about-us/about-us.module';
 import { WhyChooseUsModule } from './app/modules/why-choose-us/why-choose-us.module';
 import { ContactUsModule } from './app/modules/contact-us/contact-us.module';
 import { WorkProcessModule } from './app/modules/work-process/work-process.module';
+import { SmtpModule } from './app/modules/smtp/smtp.module';
+import { ServicesModule } from './app/modules/services/services.module';
 
 /**
  * // Get environment (development/production/etc.)
@@ -102,12 +103,13 @@ const ENV = process.env.NODE_ENV;
     BlogsModule,
     BlogDetailsModule,
     FaqModule,
-    ServicesModule,
     ClientsModule,
     AboutUsModule,
     WhyChooseUsModule,
     ContactUsModule,
     WorkProcessModule,
+    SmtpModule,
+    ServicesModule,
   ],
   controllers: [AppController],
   providers: [

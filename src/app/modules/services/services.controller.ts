@@ -12,20 +12,20 @@ import {
   UploadedFile,
   Query,
 } from '@nestjs/common';
-import { WorkProcessService } from './work-process.service';
-import { CreateWorkProcessDto } from './dto/create-work-process.dto';
-import { UpdateWorkProcessDto } from './dto/update-work-process.dto';
+import { ServicesService } from './services.service';
+import { CreateServiceDto } from './dto/create-service.dto';
+import { UpdateServiceDto } from './dto/update-service.dto';
 import { AuthenticationGuard } from 'src/app/auth/guards/authentication.guard';
 import { IpDeviceThrottlerGuard } from 'src/app/auth/decorators/ip-device-throttler-guard';
 import { Throttle } from '@nestjs/throttler';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiOperation, ApiParam, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { Request } from 'express';
-import { GetWorkProcessDto } from './dto/get-work-process.dto';
+import { GetServiceDto } from './dto/get-service.dto';
 
-@Controller('work-process')
-export class WorkProcessController {
-  constructor(private readonly workProcessService: WorkProcessService) {}
+@Controller('services')
+export class ServicesController {
+  constructor(private readonly servicesService: ServicesService) {}
 
   // ✅ Protected endpoint for creating a Work Gallery entry
   @UseGuards(AuthenticationGuard, IpDeviceThrottlerGuard) // 🔐 Custom guards for authentication & throttling
@@ -41,10 +41,10 @@ export class WorkProcessController {
   @ApiResponse({ status: 409, description: 'Team member already exists.' })
   create(
     @Req() req: Request,
-    @Body() createWorkProcessDto: CreateWorkProcessDto,
+    @Body() createServiceDto: CreateServiceDto,
     @UploadedFile() file?: Express.Multer.File,
   ) {
-    return this.workProcessService.create(req, createWorkProcessDto, file);
+    return this.servicesService.create(req, createServiceDto, file);
   }
 
   @Get()
@@ -61,8 +61,8 @@ export class WorkProcessController {
     example: 'active',
     description: 'Any custom filter field (e.g., status).',
   })
-  findAll(@Query() getWorkProcessDto: GetWorkProcessDto) {
-    return this.workProcessService.findAll(getWorkProcessDto);
+  findAll(@Query() getServiceDto: GetServiceDto) {
+    return this.servicesService.findAll(getServiceDto);
   }
 
   @Get(':id')
@@ -76,7 +76,7 @@ export class WorkProcessController {
   @ApiResponse({ status: 200, description: 'Team member found.' })
   @ApiResponse({ status: 404, description: 'Team member not found.' })
   findOne(@Param('id') id: string) {
-    return this.workProcessService.findOne(id);
+    return this.servicesService.findOne(id);
   }
 
   @UseGuards(AuthenticationGuard, IpDeviceThrottlerGuard)
@@ -97,10 +97,10 @@ export class WorkProcessController {
   @ApiResponse({ status: 400, description: 'Invalid data or ID.' })
   update(
     @Param('id') id: string,
-    @Body() updateWorkProcessDto: UpdateWorkProcessDto,
+    @Body() updateServiceDto: UpdateServiceDto,
     @UploadedFile() file?: Express.Multer.File,
   ) {
-    return this.workProcessService.update(id, updateWorkProcessDto, file);
+    return this.servicesService.update(id, updateServiceDto, file);
   }
 
   @UseGuards(AuthenticationGuard, IpDeviceThrottlerGuard)
@@ -119,6 +119,6 @@ export class WorkProcessController {
   })
   @ApiResponse({ status: 404, description: 'Team member not found.' })
   remove(@Param('id') id: string) {
-    return this.workProcessService.remove(id);
+    return this.servicesService.remove(id);
   }
 }

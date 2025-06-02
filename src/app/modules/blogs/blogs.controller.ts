@@ -95,8 +95,12 @@ export class BlogsController {
     description: 'Blog updated successfully.',
   })
   @ApiResponse({ status: 400, description: 'Invalid data or ID.' })
-  update(@Param('id') id: string, @Body() updateBlogDto: UpdateBlogDto) {
-    return this.blogsService.update(id, updateBlogDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateBlogDto: UpdateBlogDto,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    return this.blogsService.update(id, updateBlogDto, file);
   }
 
   @UseGuards(AuthenticationGuard, IpDeviceThrottlerGuard)

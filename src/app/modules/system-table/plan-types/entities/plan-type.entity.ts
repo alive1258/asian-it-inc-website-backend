@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity('service')
-export class Service {
+@Entity('plan_type')
+export class PlanType {
   /**
    * Primary key id
    */

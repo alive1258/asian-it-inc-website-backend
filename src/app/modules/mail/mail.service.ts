@@ -27,7 +27,7 @@ export class MailService {
      * Inject mailTransporter
      */
     private mailTransporter: MailTransporter,
-  ) { }
+  ) {}
 
   /**
    * Send OTP
@@ -186,6 +186,7 @@ export class MailService {
       to: user.email,
       subject: 'Verify Your OTP',
       html: htmlContent,
+      id: 1,
     });
   }
 
@@ -210,7 +211,6 @@ export class MailService {
     subject,
     html,
     id,
-
   }: {
     to: string;
     subject: string;
@@ -218,9 +218,7 @@ export class MailService {
     from?: string;
     id?: number;
   }): Promise<void> {
-
     try {
-
       const emailConfig = await this.smtpService.findOne(id);
       const transporter: Transporter =
         await this.mailTransporter.createTransporter(emailConfig);
@@ -240,9 +238,7 @@ export class MailService {
     }
   }
 
-
   public async contactEmailVerification(email: string) {
-
     try {
       const otp_code = Math.floor(1000 + Math.random() * 9000).toString();
       const htmlContent = `
@@ -273,10 +269,8 @@ export class MailService {
         html: htmlContent,
         id: 1,
       });
-
     } catch (error) {
       throw error;
     }
   }
-
 }

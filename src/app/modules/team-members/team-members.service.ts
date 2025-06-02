@@ -33,7 +33,7 @@ export class TeamMembersService {
   ) {}
 
   public async create(
-    @Req() req: Request,
+    req: Request,
     createTeamMemberDto: CreateTeamMemberDto,
     file?: Express.Multer.File,
   ): Promise<TeamMember> {

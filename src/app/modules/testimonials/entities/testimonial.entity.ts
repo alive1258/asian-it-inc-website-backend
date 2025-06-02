@@ -8,8 +8,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Client } from '../../system-table/clients/entities/client.entity';
-import { Service } from '../../system-table/services/entities/service.entity';
 import { Designation } from '../../designations/entities/designation.entity';
+import { Service } from '../../services/entities/service.entity';
 
 /**
  * Testimonial Entity

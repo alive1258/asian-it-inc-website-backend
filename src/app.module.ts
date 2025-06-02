@@ -29,16 +29,23 @@ import { TeamMemberSocialLinksModule } from './app/modules/team-member-social-li
 import { BlogCategoriesModule } from './app/modules/blog-categories/blog-categories.module';
 import { BlogsModule } from './app/modules/blogs/blogs.module';
 import { BlogDetailsModule } from './app/modules/blog-details/blog-details.module';
-
 import { FaqModule } from './app/modules/faq/faq.module';
-import { ServicesModule } from './app/modules/system-table/services/services.module';
 import { ClientsModule } from './app/modules/system-table/clients/clients.module';
-
 import { AboutUsModule } from './app/modules/about-us/about-us.module';
 import { WhyChooseUsModule } from './app/modules/why-choose-us/why-choose-us.module';
 import { ContactUsModule } from './app/modules/contact-us/contact-us.module';
+import { WorkProcessModule } from './app/modules/work-process/work-process.module';
 import { SmtpModule } from './app/modules/smtp/smtp.module';
-
+import { ServicesModule } from './app/modules/services/services.module';
+import { WhyChooseModule } from './app/modules/why-choose/why-choose.module';
+import { ServiceFaqsModule } from './app/modules/service-faqs/service-faqs.module';
+import { ServiceFaqIntroductionModule } from './app/modules/service-faq-introduction/service-faq-introduction.module';
+import { WorkFlowsModule } from './app/modules/work-flows/work-flows.module';
+import { TechnologiesModule } from './app/modules/system-table/technologies/technologies.module';
+import { TechnologiesWeUsedModule } from './app/modules/technologies-we-used/technologies-we-used.module';
+import { PlanTypesModule } from './app/modules/system-table/plan-types/plan-types.module';
+import { PricingPlanFeaturesModule } from './app/modules/pricing-plan-features/pricing-plan-features.module';
+import { PricingPlansModule } from './app/modules/pricing-plans/pricing-plans.module';
 
 /**
  * // Get environment (development/production/etc.)
@@ -104,17 +111,25 @@ const ENV = process.env.NODE_ENV;
     BlogCategoriesModule,
     BlogsModule,
     BlogDetailsModule,
-
     FaqModule,
-    ServicesModule,
     ClientsModule,
-
     AboutUsModule,
     WhyChooseUsModule,
     ContactUsModule,
+    WorkProcessModule,
     SmtpModule,
+    ServicesModule,
+    WhyChooseModule,
+    ServiceFaqsModule,
+    ServiceFaqIntroductionModule,
+    WorkFlowsModule,
+    TechnologiesModule,
+    TechnologiesWeUsedModule,
+    PlanTypesModule,
 
+    PricingPlanFeaturesModule,
 
+    PricingPlansModule,
   ],
   controllers: [AppController],
   providers: [
@@ -136,4 +151,4 @@ const ENV = process.env.NODE_ENV;
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

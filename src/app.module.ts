@@ -42,6 +42,10 @@ import { ServiceFaqsModule } from './app/modules/service-faqs/service-faqs.modul
 import { ServiceFaqIntroductionModule } from './app/modules/service-faq-introduction/service-faq-introduction.module';
 import { WorkFlowsModule } from './app/modules/work-flows/work-flows.module';
 import { TechnologiesModule } from './app/modules/system-table/technologies/technologies.module';
+import { TechnologiesWeUsedModule } from './app/modules/technologies-we-used/technologies-we-used.module';
+import { PlanTypesModule } from './app/modules/system-table/plan-types/plan-types.module';
+import { PricingPlanFeaturesModule } from './app/modules/pricing-plan-features/pricing-plan-features.module';
+import { PricingPlansModule } from './app/modules/pricing-plans/pricing-plans.module';
 
 /**
  * // Get environment (development/production/etc.)
@@ -120,6 +124,12 @@ const ENV = process.env.NODE_ENV;
     ServiceFaqIntroductionModule,
     WorkFlowsModule,
     TechnologiesModule,
+    TechnologiesWeUsedModule,
+    PlanTypesModule,
+
+    PricingPlanFeaturesModule,
+
+    PricingPlansModule,
   ],
   controllers: [AppController],
   providers: [

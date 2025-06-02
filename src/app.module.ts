@@ -37,6 +37,11 @@ import { ContactUsModule } from './app/modules/contact-us/contact-us.module';
 import { WorkProcessModule } from './app/modules/work-process/work-process.module';
 import { SmtpModule } from './app/modules/smtp/smtp.module';
 import { ServicesModule } from './app/modules/services/services.module';
+import { WhyChooseModule } from './app/modules/why-choose/why-choose.module';
+import { ServiceFaqsModule } from './app/modules/service-faqs/service-faqs.module';
+import { ServiceFaqIntroductionModule } from './app/modules/service-faq-introduction/service-faq-introduction.module';
+import { WorkFlowsModule } from './app/modules/work-flows/work-flows.module';
+import { TechnologiesModule } from './app/modules/system-table/technologies/technologies.module';
 
 /**
  * // Get environment (development/production/etc.)
@@ -110,6 +115,11 @@ const ENV = process.env.NODE_ENV;
     WorkProcessModule,
     SmtpModule,
     ServicesModule,
+    WhyChooseModule,
+    ServiceFaqsModule,
+    ServiceFaqIntroductionModule,
+    WorkFlowsModule,
+    TechnologiesModule,
   ],
   controllers: [AppController],
   providers: [

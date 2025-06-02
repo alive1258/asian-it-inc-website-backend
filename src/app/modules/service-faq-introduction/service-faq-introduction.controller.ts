@@ -8,43 +8,53 @@ import {
   Delete,
   UseGuards,
   UseInterceptors,
-  Req,
   UploadedFile,
+  Req,
   Query,
 } from '@nestjs/common';
-import { BlogsService } from './blogs.service';
-import { CreateBlogDto } from './dto/create-blog.dto';
-import { UpdateBlogDto } from './dto/update-blog.dto';
+import { ServiceFaqIntroductionService } from './service-faq-introduction.service';
+import { CreateServiceFaqIntroductionDto } from './dto/create-service-faq-introduction.dto';
+import { UpdateServiceFaqIntroductionDto } from './dto/update-service-faq-introduction.dto';
 import { AuthenticationGuard } from 'src/app/auth/guards/authentication.guard';
 import { IpDeviceThrottlerGuard } from 'src/app/auth/decorators/ip-device-throttler-guard';
 import { Throttle } from '@nestjs/throttler';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiOperation, ApiParam, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { Request } from 'express';
-import { GetBlogDto } from './dto/get-blog.dto';
 
-@Controller('blogs')
-export class BlogsController {
-  constructor(private readonly blogsService: BlogsService) {}
+import { GetServiceFaqIntroductionDto } from './dto/get-service-faq-introduction.dto';
+
+@Controller('service-faq-introduction')
+export class ServiceFaqIntroductionController {
+  constructor(
+    private readonly serviceFaqIntroductionService: ServiceFaqIntroductionService,
+  ) {}
 
   // ✅ Protected endpoint for creating a Work Gallery entry
   @UseGuards(AuthenticationGuard, IpDeviceThrottlerGuard) // 🔐 Custom guards for authentication & throttling
-  @Throttle({ default: { limit: 6, ttl: 180 } }) // 📈 Limit to 6 requests per 3 minutes per IP/device
-  @UseInterceptors(FileInterceptor('thumbnail')) // 📎 Handles file upload with key 'photo'
+  @Throttle({ default: { limit: 20, ttl: 180 } }) // 📈 Limit to 6 requests per 3 minutes per IP/device
+  @UseInterceptors(FileInterceptor('photo')) // 📎 Handles file upload with key 'photo'
   @Post()
-  @ApiOperation({ summary: 'Create a new blog.' })
+  @ApiOperation({ summary: 'Create a new service Faq Introduction.' })
   @ApiResponse({
     status: 201,
-    description: 'Blog created successfully.',
+    description: 'service Faq Introduction created successfully.',
   })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
-  @ApiResponse({ status: 409, description: 'Blog already exists.' })
+  @ApiResponse({
+    status: 409,
+    description: 'service Faq Introduction already exists.',
+  })
   create(
     @Req() req: Request,
-    @Body() createBlogDto: CreateBlogDto,
+    @Body() createServiceFaqIntroductionDto: CreateServiceFaqIntroductionDto,
     @UploadedFile() file?: Express.Multer.File,
   ) {
-    return this.blogsService.create(req, createBlogDto, file);
+    return this.serviceFaqIntroductionService.create(
+      req,
+      createServiceFaqIntroductionDto,
+      file,
+    );
   }
 
   @Get()
@@ -61,8 +71,10 @@ export class BlogsController {
     example: 'active',
     description: 'Any custom filter field (e.g., status).',
   })
-  findAll(@Query() getBlogDto: GetBlogDto) {
-    return this.blogsService.findAll(getBlogDto);
+  findAll(@Query() getServiceFaqIntroductionDto: GetServiceFaqIntroductionDto) {
+    return this.serviceFaqIntroductionService.findAll(
+      getServiceFaqIntroductionDto,
+    );
   }
 
   @Get(':id')
@@ -76,35 +88,39 @@ export class BlogsController {
   @ApiResponse({ status: 200, description: 'Blog found.' })
   @ApiResponse({ status: 404, description: 'Blog not found.' })
   findOne(@Param('id') id: string) {
-    return this.blogsService.findOne(id);
+    return this.serviceFaqIntroductionService.findOne(id);
   }
 
   @UseGuards(AuthenticationGuard, IpDeviceThrottlerGuard)
-  @Throttle({ default: { limit: 6, ttl: 180 } })
+  @Throttle({ default: { limit: 20, ttl: 180 } })
   @UseInterceptors(FileInterceptor('thumbnail'))
   @Patch(':id')
-  @ApiOperation({ summary: 'Update a blog by ID.' })
+  @ApiOperation({ summary: 'Update a Service Faq Introduction by ID.' })
   @ApiParam({
     name: 'id',
     type: 'string',
-    description: 'Blog ID.',
+    description: 'Service Faq Introduction ID.',
     example: '1',
   })
   @ApiResponse({
     status: 200,
-    description: 'Blog updated successfully.',
+    description: 'Service Faq Introduction updated successfully.',
   })
   @ApiResponse({ status: 400, description: 'Invalid data or ID.' })
   update(
     @Param('id') id: string,
-    @Body() updateBlogDto: UpdateBlogDto,
+    @Body() updateServiceFaqIntroductionDto: UpdateServiceFaqIntroductionDto,
     @UploadedFile() file?: Express.Multer.File,
   ) {
-    return this.blogsService.update(id, updateBlogDto, file);
+    return this.serviceFaqIntroductionService.update(
+      id,
+      updateServiceFaqIntroductionDto,
+      file,
+    );
   }
 
   @UseGuards(AuthenticationGuard, IpDeviceThrottlerGuard)
-  @Throttle({ default: { limit: 6, ttl: 180 } })
+  @Throttle({ default: { limit: 20, ttl: 180 } })
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a blog by ID.' })
   @ApiParam({
@@ -119,6 +135,6 @@ export class BlogsController {
   })
   @ApiResponse({ status: 404, description: 'Blog not found.' })
   remove(@Param('id') id: string) {
-    return this.blogsService.remove(id);
+    return this.serviceFaqIntroductionService.remove(id);
   }
 }

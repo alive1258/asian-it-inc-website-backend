@@ -49,6 +49,7 @@ import { PricingPlansModule } from './app/modules/pricing-plans/pricing-plans.mo
 import { PortfolioModule } from './app/modules/portfolio/portfolio.module';
 import { WorkFlowCategoryModule } from './app/modules/work-flow-category/work-flow-category.module';
 import { WorkProcessGalleriesModule } from './app/modules/work-process-galleries/work-process-galleries.module';
+import { WorkFlowDetailsModule } from './app/modules/work-flow-details/work-flow-details.module';
 
 /**
  * // Get environment (development/production/etc.)
@@ -139,6 +140,8 @@ const ENV = process.env.NODE_ENV;
     WorkFlowCategoryModule,
 
     WorkProcessGalleriesModule,
+
+    WorkFlowDetailsModule,
   ],
   controllers: [AppController],
   providers: [

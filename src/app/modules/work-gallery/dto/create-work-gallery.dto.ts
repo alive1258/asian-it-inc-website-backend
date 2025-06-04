@@ -9,7 +9,6 @@ export class CreateWorkGalleryDto {
   })
   @IsString()
   @IsNotEmpty({ message: 'Name is required and cannot be empty.' })
-  @MaxLength(150, { message: 'Name must be at most 150 characters.' })
   name: string;
 
   @ApiPropertyOptional({

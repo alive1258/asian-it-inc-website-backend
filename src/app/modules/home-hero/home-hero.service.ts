@@ -19,36 +19,43 @@ export class HomeHeroService {
     @InjectRepository(HomeHero)
     private readonly homeHeroRepository: Repository<HomeHero>,
     private readonly dataQueryService: DataQueryService,
-  ) {}
+  ) { }
 
   public async create(
     req: Request,
     createHomeHeroDto: CreateHomeHeroDto,
   ): Promise<HomeHero> {
     const user_id = req?.user?.sub;
+
     // 1. Check if user is authenticated
     if (!user_id) {
       throw new UnauthorizedException(
         'You must be signed in to access this resource.',
       );
     }
-    // 2. Check for duplicate record
+
+    // 2. Check for existing data (singleton pattern)
     const existingData = await this.homeHeroRepository.findOne({
-      where: {
-        title: createHomeHeroDto.title,
-      },
+      where: {},
+      order: { id: 'ASC' }, // or 'DESC' for the last row
     });
+
     if (existingData) {
-      throw new BadRequestException(
-        'A record with the same data already exists.',
-      );
+      // 3. Update the existing entry
+      Object.assign(existingData, {
+        ...createHomeHeroDto,
+        updated_by: user_id, // optional if you track updates
+      });
+
+      return this.homeHeroRepository.save(existingData);
     }
 
-    // 3. Create and save the new entry
+    // 4. Create a new entry
     const newEntry = this.homeHeroRepository.create({
       ...createHomeHeroDto,
       added_by: user_id,
     });
+
     return this.homeHeroRepository.save(newEntry);
   }
 
@@ -77,11 +84,10 @@ export class HomeHeroService {
   }
 
   // ✅ Public GET endpoint to retrieve a single Home Hero entry by ID
-  public async findOne(id: string): Promise<HomeHero> {
+  public async findOne(): Promise<HomeHero> {
     const homeHero = await this.homeHeroRepository.findOne({
-      where: {
-        id,
-      },
+      where: {},
+      order: { id: 'ASC' }, // or 'DESC' for the last row
     });
     if (!homeHero) {
       throw new BadRequestException('home Hero No data found');
@@ -114,16 +120,4 @@ export class HomeHeroService {
     return this.homeHeroRepository.save(homeHero);
   }
 
-  // ✅ Public DELETE endpoint to remove a Home Hero entry by ID
-  public async remove(id: string): Promise<{ message: string }> {
-    if (!id) {
-      throw new BadRequestException('Home Hero ID is required');
-    }
-
-    const homeEducation = await this.findOne(id);
-
-    await this.homeHeroRepository.remove(homeEducation);
-
-    return { message: 'homeHero deleted successfully' };
-  }
 }

@@ -30,7 +30,7 @@ import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 @Controller('home-hero')
 @ApiTags('Home Hero') // ✅ Good practice: Swagger tag for grouping endpoints
 export class HomeHeroController {
-  constructor(private readonly homeHeroService: HomeHeroService) {}
+  constructor(private readonly homeHeroService: HomeHeroService) { }
 
   // ✅ Protected POST endpoint
   @UseGuards(AuthenticationGuard, IpDeviceThrottlerGuard)
@@ -94,7 +94,7 @@ export class HomeHeroController {
   }
 
   // ✅ Public GET endpoint to retrieve by ID
-  @Get(':id')
+  @Get('get-single')
   @ApiParam({
     name: 'id',
     type: String,
@@ -113,8 +113,8 @@ export class HomeHeroController {
     status: 404,
     description: 'Entry not found with the given ID',
   })
-  findOne(@Param('id') id: string) {
-    return this.homeHeroService.findOne(id);
+  findOne() {
+    return this.homeHeroService.findOne();
   }
 
   // ✅ Protected PATCH endpoint for updating by ID
@@ -150,33 +150,5 @@ export class HomeHeroController {
     return this.homeHeroService.update(id, updateHomeHeroDto);
   }
 
-  // ✅ Protected DELETE endpoint for removing by ID
-  @UseGuards(AuthenticationGuard, IpDeviceThrottlerGuard)
-  @Throttle({ default: { limit: 1, ttl: 60000 } })
-  @Delete(':id')
-  @ApiParam({
-    name: 'id',
-    type: String,
-    required: true,
-    description: 'ID of the Hero section entry to delete',
-    example: '4',
-  })
-  @ApiOperation({
-    summary: 'Delete a Hero Section entry by ID',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Successfully deleted the Hero Section entry',
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Invalid ID format',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'No Hero Section found with the provided ID',
-  })
-  remove(@Param('id') id: string) {
-    return this.homeHeroService.remove(id);
-  }
+
 }

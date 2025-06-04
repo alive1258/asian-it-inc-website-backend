@@ -23,7 +23,7 @@ export class WorkGalleryService {
     private readonly workGalleryRepository: Repository<WorkGallery>,
     private readonly fileUploadsService: FileUploadsService,
     private readonly dataQueryService: DataQueryService,
-  ) {}
+  ) { }
   public async create(
     @Req() req: Request,
     createWorkGalleryDto: CreateWorkGalleryDto,

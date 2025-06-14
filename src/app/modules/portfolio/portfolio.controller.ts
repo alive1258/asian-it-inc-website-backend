@@ -12,44 +12,41 @@ import {
   UploadedFile,
   Query,
 } from '@nestjs/common';
-import { BlogsService } from './blogs.service';
-import { CreateBlogDto } from './dto/create-blog.dto';
-import { UpdateBlogDto } from './dto/update-blog.dto';
+import { PortfolioService } from './portfolio.service';
+import { CreatePortfolioDto } from './dto/create-portfolio.dto';
+import { UpdatePortfolioDto } from './dto/update-portfolio.dto';
 import { AuthenticationGuard } from 'src/app/auth/guards/authentication.guard';
 import { IpDeviceThrottlerGuard } from 'src/app/auth/decorators/ip-device-throttler-guard';
 import { Throttle } from '@nestjs/throttler';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiOperation, ApiParam, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { Request } from 'express';
-import { GetBlogDto } from './dto/get-blog.dto';
+import { GetPortfolioDto } from './dto/get-portfolio.dto';
 
-@Controller('blogs')
-export class BlogsController {
-  constructor(private readonly blogsService: BlogsService) {}
+@Controller('portfolio')
+export class PortfolioController {
+  constructor(private readonly portfolioService: PortfolioService) {}
 
   // ✅ Protected endpoint for creating a Work Gallery entry
-  @UseGuards(AuthenticationGuard, IpDeviceThrottlerGuard) // 🔐 Custom guards for authentication & throttling
-  @Throttle({ default: { limit: 20, ttl: 180 } }) // 📈 Limit to 6 requests per 3 minutes per IP/device
-  @UseInterceptors(FileInterceptor('thumbnail')) // 📎 Handles file upload with key 'photo'
+  @UseGuards(AuthenticationGuard, IpDeviceThrottlerGuard)
+  @Throttle({ default: { limit: 20, ttl: 180 } })
+  @UseInterceptors(FileInterceptor('photo'))
   @Post()
-  @ApiOperation({ summary: 'Create a new blog.' })
-  @ApiResponse({
-    status: 201,
-    description: 'Blog created successfully.',
-  })
+  @ApiOperation({ summary: 'Create a new portfolio entry.' })
+  @ApiResponse({ status: 201, description: 'Portfolio created successfully.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
-  @ApiResponse({ status: 409, description: 'Blog already exists.' })
+  @ApiResponse({ status: 409, description: 'Portfolio already exists.' })
   create(
     @Req() req: Request,
-    @Body() createBlogDto: CreateBlogDto,
+    @Body() createPortfolioDto: CreatePortfolioDto,
     @UploadedFile() file?: Express.Multer.File,
   ) {
-    return this.blogsService.create(req, createBlogDto, file);
+    return this.portfolioService.create(req, createPortfolioDto, file);
   }
 
   @Get()
   @ApiOperation({
-    summary: 'Get all blogs with filters and pagination.',
+    summary: 'Get all portfolio with filters and pagination.',
   })
   @ApiQuery({ name: 'limit', required: false, type: String, example: '10' })
   @ApiQuery({ name: 'page', required: false, type: String, example: '1' })
@@ -61,64 +58,63 @@ export class BlogsController {
     example: 'active',
     description: 'Any custom filter field (e.g., status).',
   })
-  findAll(@Query() getBlogDto: GetBlogDto) {
-    return this.blogsService.findAll(getBlogDto);
+  findAll(@Query() getPortfolioDto: GetPortfolioDto) {
+    return this.portfolioService.findAll(getPortfolioDto);
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get a single blog by ID.' })
+  @ApiOperation({ summary: 'Get a single portfolio by ID.' })
   @ApiParam({
     name: 'id',
     type: 'string',
-    description: 'Blog ID.',
+    description: 'portfolio ID.',
     example: '1',
   })
-  @ApiResponse({ status: 200, description: 'Blog found.' })
-  @ApiResponse({ status: 404, description: 'Blog not found.' })
+  @ApiResponse({ status: 200, description: 'portfolio found.' })
+  @ApiResponse({ status: 404, description: 'portfolio not found.' })
   findOne(@Param('id') id: string) {
-    return this.blogsService.findOne(id);
+    return this.portfolioService.findOne(id);
   }
 
   @UseGuards(AuthenticationGuard, IpDeviceThrottlerGuard)
-  @Throttle({ default: { limit: 20, ttl: 180 } })
-  @UseInterceptors(FileInterceptor('thumbnail'))
+  @Throttle({ default: { limit: 6, ttl: 180 } })
+  @UseInterceptors(FileInterceptor('photo'))
   @Patch(':id')
-  @ApiOperation({ summary: 'Update a blog by ID.' })
+  @ApiOperation({ summary: 'Update a portfolio by ID.' })
   @ApiParam({
     name: 'id',
     type: 'string',
-    description: 'Blog ID.',
+    description: 'portfolio ID.',
     example: '1',
   })
   @ApiResponse({
     status: 200,
-    description: 'Blog updated successfully.',
+    description: 'portfolio updated successfully.',
   })
   @ApiResponse({ status: 400, description: 'Invalid data or ID.' })
   update(
     @Param('id') id: string,
-    @Body() updateBlogDto: UpdateBlogDto,
+    @Body() updatePortfolioDto: UpdatePortfolioDto,
     @UploadedFile() file?: Express.Multer.File,
   ) {
-    return this.blogsService.update(id, updateBlogDto, file);
+    return this.portfolioService.update(id, updatePortfolioDto, file);
   }
-
   @UseGuards(AuthenticationGuard, IpDeviceThrottlerGuard)
   @Throttle({ default: { limit: 20, ttl: 180 } })
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete a blog by ID.' })
+  @ApiOperation({ summary: 'Delete a portfolio by ID.' })
   @ApiParam({
     name: 'id',
     type: 'string',
-    description: 'Blog ID.',
+    description: 'portfolio ID.',
     example: '1',
   })
   @ApiResponse({
     status: 200,
-    description: 'Blog deleted successfully.',
+    description: 'portfolio deleted successfully.',
   })
-  @ApiResponse({ status: 404, description: 'Blog not found.' })
+  @ApiResponse({ status: 404, description: 'portfolio not found.' })
   remove(@Param('id') id: string) {
-    return this.blogsService.remove(id);
+    return this.portfolioService.remove(id);
   }
 }

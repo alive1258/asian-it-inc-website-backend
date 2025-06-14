@@ -2,31 +2,30 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
-  Req,
   UnauthorizedException,
 } from '@nestjs/common';
-import { CreateWorkGalleryDto } from './dto/create-work-gallery.dto';
-import { UpdateWorkGalleryDto } from './dto/update-work-gallery.dto';
+import { CreateWorkFlowToolDto } from './dto/create-work-flow-tool.dto';
+import { UpdateWorkFlowToolDto } from './dto/update-work-flow-tool.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { WorkGallery } from './entities/work-gallery.entity';
+import { WorkFlowTool } from './entities/work-flow-tool.entity';
 import { Repository } from 'typeorm';
-import { DataQueryService } from './../../common/data-query/data-query.service';
+import { FileUploadsService } from 'src/app/common/file-uploads/file-uploads.service';
+import { DataQueryService } from 'src/app/common/data-query/data-query.service';
 import { Request } from 'express';
-import { FileUploadsService } from './../../common/file-uploads/file-uploads.service';
-import { GetWorkGalleryDto } from './dto/get-work-gallery.dto';
+import { GetWorkFlowToolDto } from './dto/get-work-flow-tools.dto';
 import { IPagination } from 'src/app/common/data-query/pagination.interface';
 
 @Injectable()
-export class WorkGalleryService {
+export class WorkFlowToolsService {
   constructor(
-    @InjectRepository(WorkGallery)
-    private readonly workGalleryRepository: Repository<WorkGallery>,
+    @InjectRepository(WorkFlowTool)
+    private readonly workFlowToolRepository: Repository<WorkFlowTool>,
     private readonly fileUploadsService: FileUploadsService,
     private readonly dataQueryService: DataQueryService,
-  ) { }
+  ) {}
   public async create(
     req: Request,
-    createWorkGalleryDto: CreateWorkGalleryDto,
+    createWorkFlowToolDto: CreateWorkFlowToolDto,
     file?: Express.Multer.File,
   ) {
     // ✅ Extract authenticated user ID from request object
@@ -38,13 +37,13 @@ export class WorkGalleryService {
     }
 
     // 🔎 Check if a gallery with the same name already exists
-    const existWorkGallery = await this.workGalleryRepository.findOne({
-      where: { name: createWorkGalleryDto.name },
+    const existWorkFlowTool = await this.workFlowToolRepository.findOne({
+      where: { name: createWorkFlowToolDto.name },
     });
 
     // ⚠️ Prevent duplicate entries
-    if (existWorkGallery) {
-      throw new UnauthorizedException('Work Gallery already exist');
+    if (existWorkFlowTool) {
+      throw new UnauthorizedException('Work FlowTool already exist');
     }
 
     let photo: string | undefined;
@@ -55,87 +54,102 @@ export class WorkGalleryService {
       // 📁 Use the uploaded photo path (single or from array)
       photo = Array.isArray(uploaded) ? uploaded[0] : uploaded;
     }
-    // 🏗️ Create a new WorkGallery entity with user and optional photo
-    const workGallery = this.workGalleryRepository.create({
-      ...createWorkGalleryDto,
+    // 🏗️ Create a new WorkFlowTool entity with user and optional photo
+    const workFlowTool = this.workFlowToolRepository.create({
+      ...createWorkFlowToolDto,
+      work_flow_category_id: createWorkFlowToolDto.work_flow_category_id,
+      portfolio_id: createWorkFlowToolDto.portfolio_id,
       added_by: user_id,
       photo,
     });
 
     // 💾 Persist the entity to the database
-    return await this.workGalleryRepository.save(workGallery);
+    return await this.workFlowToolRepository.save(workFlowTool);
   }
 
   public async findAll(
-    getWorkGalleryDto: GetWorkGalleryDto,
-  ): Promise<IPagination<WorkGallery>> {
-    // ✅ Define which fields are searchable using the 'search' keyword
+    getWorkFlowToolDto: GetWorkFlowToolDto,
+  ): Promise<IPagination<WorkFlowTool>> {
+    // Fields that can be searched by keyword
     const searchableFields = ['name'];
+    const relations = ['workFlowCategory', 'portfolio'];
+    // const selectRelations = ['service.name'];
+    // const select = ['id', 'member_id', 'skill_id', 'created_at'];
 
-    // ✅ Destructure pagination and search-related fields from the DTO
-    const { page, limit, search, ...filters } = getWorkGalleryDto;
+    // Extract pagination and search params
+    const { limit, page, search, ...filters } = getWorkFlowToolDto;
 
-    // ✅ Delegate query logic to the reusable dataQuery service
-    const result = this.dataQueryService.dataQuery({
+    // Query database using DataQueryService abstraction
+    const workFlowFlowTool = await this.dataQueryService.dataQuery({
       paginationQuery: { limit, page, search, filters },
       searchableFields,
-      repository: this.workGalleryRepository,
+      relations,
+      // select,
+      // selectRelations,
+      repository: this.workFlowToolRepository,
+    });
+    // check if collaborate is empty
+    if (!workFlowFlowTool) {
+      throw new BadRequestException('No WorkFlowFlowTool  data found');
+    }
+    return workFlowFlowTool;
+  }
+
+  public async findOne(id: string): Promise<WorkFlowTool> {
+    const workFlowDetailTool = await this.workFlowToolRepository.findOne({
+      where: { id },
+      relations: {
+        workFlowCategory: true,
+        portfolio: true,
+      },
     });
 
-    // ✅ Return the final paginated result
-    return result;
-  }
-  public async findOne(id: string): Promise<WorkGallery> {
-    // Attempt to find the work gallery item by its ID
-    const workGallery = await this.workGalleryRepository.findOne({
-      where: { id },
-    });
-    if (!workGallery) {
-      throw new NotFoundException('workGallery not found');
+    if (!workFlowDetailTool) {
+      throw new NotFoundException('WorkFlowDetailTool data not found');
     }
-    return workGallery;
+    return workFlowDetailTool;
   }
 
   public async update(
     id: string,
-    updateWorkGalleryDto: UpdateWorkGalleryDto,
+    updateWorkFlowToolDto: UpdateWorkFlowToolDto,
     file?: Express.Multer.File,
-  ): Promise<WorkGallery> {
+  ): Promise<WorkFlowTool> {
     // ⚠️ Validate ID presence - required for update operation
     if (!id) {
       throw new BadRequestException('  ID is required');
     }
 
     // 🔍 Find existing WorkGallery by ID
-    const workGallery = await this.workGalleryRepository.findOneBy({ id });
+    const workFlowTool = await this.workFlowToolRepository.findOneBy({ id });
     // 🛑 Throw error if no matching record is found
-    if (!workGallery) {
-      throw new NotFoundException('workGallery not found');
+    if (!workFlowTool) {
+      throw new NotFoundException('workFlowTool not found');
     }
 
     let photo: string | string[] | undefined;
 
     // 📤 If new file provided and photo exists, update the file storageHandle file upload if a new file is provided
-    if (file && workGallery.photo) {
+    if (file && workFlowTool.photo) {
       photo = await this.fileUploadsService.updateFileUploads({
-        oldFile: workGallery.photo,
+        oldFile: workFlowTool.photo,
         currentFile: file,
       });
     }
 
     // 📤 If new file provided and photo does not exist, upload the new file
-    if (file && !workGallery.photo) {
+    if (file && !workFlowTool.photo) {
       photo = await this.fileUploadsService.fileUploads(file);
     }
 
     // 📤 If no file provided, keep the existing photo
-    updateWorkGalleryDto.photo = photo as string | undefined;
+    updateWorkFlowToolDto.photo = photo as string | undefined;
 
     // 🏗️ Merge the existing entity with the new data
-    Object.assign(workGallery, updateWorkGalleryDto);
+    Object.assign(workFlowTool, updateWorkFlowToolDto);
 
     // 💾 Save the updated entity back to the database
-    return await this.workGalleryRepository.save(workGallery);
+    return await this.workFlowToolRepository.save(workFlowTool);
   }
 
   public async remove(id: string): Promise<{ message: string }> {
@@ -145,17 +159,17 @@ export class WorkGalleryService {
     }
     try {
       // 🔍 Find existing WorkGallery by ID
-      const workGallery = await this.findOne(id);
+      const workFlowTool = await this.findOne(id);
 
       // 🛑 Throw error if no matching record is found
-      if (!workGallery) {
-        throw new NotFoundException('workGallery not found');
+      if (!workFlowTool) {
+        throw new NotFoundException('workFlowTool not found');
       }
 
       // 🗑️ Delete the associated file if it exists
-      if (workGallery.photo) {
+      if (workFlowTool.photo) {
         const deleteFile = await this.fileUploadsService.deleteFileUploads(
-          workGallery.photo,
+          workFlowTool.photo,
         );
 
         // 🛑 Throw error if file deletion fails
@@ -165,11 +179,11 @@ export class WorkGalleryService {
       }
 
       // 🗑️ Delete the WorkGallery record from the database
-      await this.workGalleryRepository.delete(workGallery);
+      await this.workFlowToolRepository.delete(workFlowTool);
 
       // 🏁 Return success message
       return {
-        message: 'workGallery deleted successfully',
+        message: 'workFlowTool deleted successfully',
       };
     } catch (error) {
       throw new BadRequestException(error.message || 'Failed to delete record');

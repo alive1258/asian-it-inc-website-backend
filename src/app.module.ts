@@ -46,6 +46,11 @@ import { TechnologiesWeUsedModule } from './app/modules/technologies-we-used/tec
 import { PlanTypesModule } from './app/modules/system-table/plan-types/plan-types.module';
 import { PricingPlanFeaturesModule } from './app/modules/pricing-plan-features/pricing-plan-features.module';
 import { PricingPlansModule } from './app/modules/pricing-plans/pricing-plans.module';
+import { PortfolioModule } from './app/modules/portfolio/portfolio.module';
+import { WorkFlowCategoryModule } from './app/modules/work-flow-category/work-flow-category.module';
+import { WorkProcessGalleriesModule } from './app/modules/work-process-galleries/work-process-galleries.module';
+import { WorkFlowDetailsModule } from './app/modules/work-flow-details/work-flow-details.module';
+import { WorkFlowToolsModule } from './app/modules/work-flow-tools/work-flow-tools.module';
 
 /**
  * // Get environment (development/production/etc.)
@@ -130,6 +135,16 @@ const ENV = process.env.NODE_ENV;
     PricingPlanFeaturesModule,
 
     PricingPlansModule,
+
+    PortfolioModule,
+
+    WorkFlowCategoryModule,
+
+    WorkProcessGalleriesModule,
+
+    WorkFlowDetailsModule,
+
+    WorkFlowToolsModule,
   ],
   controllers: [AppController],
   providers: [

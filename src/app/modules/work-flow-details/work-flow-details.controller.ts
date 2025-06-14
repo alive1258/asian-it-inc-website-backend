@@ -10,38 +10,43 @@ import {
   Req,
   Query,
 } from '@nestjs/common';
-import { WhyChooseService } from './why-choose.service';
-import { CreateWhyChooseDto } from './dto/create-why-choose.dto';
-import { UpdateWhyChooseDto } from './dto/update-why-choose.dto';
+import { WorkFlowDetailsService } from './work-flow-details.service';
+import { CreateWorkFlowDetailDto } from './dto/create-work-flow-detail.dto';
+import { UpdateWorkFlowDetailDto } from './dto/update-work-flow-detail.dto';
 import { AuthenticationGuard } from 'src/app/auth/guards/authentication.guard';
 import { IpDeviceThrottlerGuard } from 'src/app/auth/decorators/ip-device-throttler-guard';
 import { Throttle } from '@nestjs/throttler';
 import { ApiOperation, ApiParam, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { Request } from 'express';
-import { GetWhyChooseDto } from './dto/get-why-choose.dto';
+import { GetWorkFlowDetailDto } from './dto/get-work-flow-detail.dto';
 
-@Controller('why-choose')
-export class WhyChooseController {
-  constructor(private readonly whyChooseService: WhyChooseService) {}
+@Controller('work-flow-details')
+export class WorkFlowDetailsController {
+  constructor(
+    private readonly workFlowDetailsService: WorkFlowDetailsService,
+  ) {}
 
   // ✅ Protected endpoint for creating a Work Gallery entry
   @UseGuards(AuthenticationGuard, IpDeviceThrottlerGuard) // 🔐 Custom guards for authentication & throttling
   @Throttle({ default: { limit: 20, ttl: 180 } }) // 📈 Limit to 6 requests per 3 minutes per IP/device
   @Post()
-  @ApiOperation({ summary: 'Create a new Why Choose  association.' })
+  @ApiOperation({ summary: 'Create a new WorkFlowDetails association.' })
   @ApiResponse({
     status: 201,
-    description: 'Why Choose  created successfully.',
+    description: 'WorkFlowDetails created successfully.',
   })
   @ApiResponse({ status: 400, description: 'Bad request. Validation failed.' })
   @ApiResponse({ status: 401, description: 'Unauthorized access.' })
   @ApiResponse({ status: 409, description: 'Conflict. Entry already exists.' })
-  create(@Body() @Req() req: Request, createWhyChooseDto: CreateWhyChooseDto) {
-    return this.whyChooseService.create(req, createWhyChooseDto);
+  create(
+    @Req() req: Request,
+    @Body() createWorkFlowDetailDto: CreateWorkFlowDetailDto,
+  ) {
+    return this.workFlowDetailsService.create(req, createWorkFlowDetailDto);
   }
 
   @Get()
-  @ApiOperation({ summary: 'Retrieve a paginated list of Why Choose s.' })
+  @ApiOperation({ summary: 'Retrieve a paginated list of WorkFlowDetails s.' })
   @ApiQuery({
     name: 'limit',
     required: false,
@@ -61,7 +66,7 @@ export class WhyChooseController {
     required: false,
     type: String,
     example: 'John',
-    description: 'Search term to filter Why Chooses by name or .',
+    description: 'Search term to filter WorkFlowDetails by name or .',
   })
   @ApiQuery({
     name: 'status',
@@ -70,64 +75,64 @@ export class WhyChooseController {
     example: true,
     description: 'Filter by active status.',
   })
-  @ApiResponse({ status: 200, description: 'List of Why Choose s.' })
-  findAll(@Query() getWhyChoose: GetWhyChooseDto) {
-    return this.whyChooseService.findAll(getWhyChoose);
+  @ApiResponse({ status: 200, description: 'List of WorkFlowDetails s.' })
+  findAll(@Query() getWorkFlowDetailDto: GetWorkFlowDetailDto) {
+    return this.workFlowDetailsService.findAll(getWorkFlowDetailDto);
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get details of a specific Why Choose .' })
+  @ApiOperation({ summary: 'Get details of a specific workFlowDetail .' })
   @ApiParam({
     name: 'id',
     type: String,
-    description: 'Unique identifier of the Why Choose .',
+    description: 'Unique identifier of the workFlowDetail .',
     example: '1',
   })
-  @ApiResponse({ status: 200, description: 'Why Choose  found.' })
-  @ApiResponse({ status: 404, description: 'Why Choose  not found.' })
+  @ApiResponse({ status: 200, description: 'workFlowDetail  found.' })
+  @ApiResponse({ status: 404, description: 'workFlowDetail  not found.' })
   findOne(@Param('id') id: string) {
-    return this.whyChooseService.findOne(id);
+    return this.workFlowDetailsService.findOne(id);
   }
 
   @UseGuards(AuthenticationGuard, IpDeviceThrottlerGuard)
   @Throttle({ default: { limit: 20, ttl: 180 } })
   @Patch(':id')
-  @ApiOperation({ summary: 'Update an existing Why Choose .' })
+  @ApiOperation({ summary: 'Update an existing WorkFlowDetail .' })
   @ApiParam({
     name: 'id',
     type: String,
-    description: 'Unique identifier of the Why Choose  to update.',
+    description: 'Unique identifier of the WorkFlowDetail  to update.',
     example: '1',
   })
   @ApiResponse({
     status: 200,
-    description: 'Why Choose  updated successfully.',
+    description: 'WorkFlowDetail  updated successfully.',
   })
   @ApiResponse({ status: 400, description: 'Invalid input or bad request.' })
-  @ApiResponse({ status: 404, description: 'Why Choose  not found.' })
+  @ApiResponse({ status: 404, description: 'WorkFlowDetail  not found.' })
   update(
     @Param('id') id: string,
-    @Body() updateWhyChooseDto: UpdateWhyChooseDto,
+    @Body() updateWorkFlowDetailDto: UpdateWorkFlowDetailDto,
   ) {
-    return this.whyChooseService.update(id, updateWhyChooseDto);
+    return this.workFlowDetailsService.update(id, updateWorkFlowDetailDto);
   }
 
   @UseGuards(AuthenticationGuard, IpDeviceThrottlerGuard)
   @Throttle({ default: { limit: 20, ttl: 180 } })
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete a Why Choose  by ID.' })
+  @ApiOperation({ summary: 'Delete a WorkFlowDetail  by ID.' })
   @ApiParam({
     name: 'id',
     type: String,
-    description: 'Unique identifier of the Why Choose  to delete.',
+    description: 'Unique identifier of the WorkFlowDetail  to delete.',
     example: '1',
   })
   @ApiResponse({
     status: 200,
-    description: 'Why Choose  deleted successfully.',
+    description: 'WorkFlowDetail  deleted successfully.',
   })
-  @ApiResponse({ status: 404, description: 'Why Choose  not found.' })
+  @ApiResponse({ status: 404, description: 'WorkFlowDetail  not found.' })
   remove(@Param('id') id: string) {
-    return this.whyChooseService.remove(id);
+    return this.workFlowDetailsService.remove(id);
   }
 }

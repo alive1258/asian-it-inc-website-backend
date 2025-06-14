@@ -11,8 +11,8 @@ import {
 import { Portfolio } from '../../portfolio/entities/portfolio.entity';
 import { WorkFlowCategory } from '../../work-flow-category/entities/work-flow-category.entity';
 
-@Entity({ name: 'work_flow_detail' })
-export class WorkFlowDetail {
+@Entity({ name: 'work_flow_tool' })
+export class WorkFlowTool {
   /**
    * Primary Key - Unique identifier for each workflow detail record
    */
@@ -23,13 +23,13 @@ export class WorkFlowDetail {
    * Full name of the team member
    */
   @Column({ type: 'varchar', nullable: false })
-  title: string;
+  name: string;
 
   /**
-   * Unique slug for the team member (used in URLs)
+   * Photo filename or image URL (optional).
    */
-  @Column({ type: 'varchar', nullable: false })
-  description: string;
+  @Column({ type: 'varchar', nullable: true })
+  photo?: string;
 
   /**
    * Foreign key referencing the portfolio associated with this workflow detail

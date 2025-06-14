@@ -12,20 +12,20 @@ import {
   UploadedFile,
   Query,
 } from '@nestjs/common';
-import { WorkGalleryService } from './work-gallery.service';
-import { CreateWorkGalleryDto } from './dto/create-work-gallery.dto';
-import { UpdateWorkGalleryDto } from './dto/update-work-gallery.dto';
+import { WorkFlowToolsService } from './work-flow-tools.service';
+import { CreateWorkFlowToolDto } from './dto/create-work-flow-tool.dto';
+import { UpdateWorkFlowToolDto } from './dto/update-work-flow-tool.dto';
 import { AuthenticationGuard } from 'src/app/auth/guards/authentication.guard';
 import { IpDeviceThrottlerGuard } from 'src/app/auth/decorators/ip-device-throttler-guard';
 import { Throttle } from '@nestjs/throttler';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiOperation, ApiParam, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { Request } from 'express';
-import { GetWorkGalleryDto } from './dto/get-work-gallery.dto';
+import { GetWorkFlowToolDto } from './dto/get-work-flow-tools.dto';
 
-@Controller('work-gallery')
-export class WorkGalleryController {
-  constructor(private readonly workGalleryService: WorkGalleryService) {}
+@Controller('work-flow-tools')
+export class WorkFlowToolsController {
+  constructor(private readonly workFlowToolsService: WorkFlowToolsService) {}
 
   // ✅ Protected endpoint for creating a Work Gallery entry
   @UseGuards(AuthenticationGuard, IpDeviceThrottlerGuard) // 🔐 Custom guards for authentication & throttling
@@ -41,15 +41,15 @@ export class WorkGalleryController {
   @ApiResponse({ status: 409, description: 'Duplicate gallery name.' })
   create(
     @Req() req: Request,
-    @Body() createWorkGalleryDto: CreateWorkGalleryDto,
+    @Body() createWorkFlowToolDto: CreateWorkFlowToolDto,
     @UploadedFile() file?: Express.Multer.File,
   ) {
-    return this.workGalleryService.create(req, createWorkGalleryDto, file);
+    return this.workFlowToolsService.create(req, createWorkFlowToolDto, file);
   }
 
   @Get()
   @ApiOperation({
-    summary: 'Get all Work Gallery data with pagination and search.',
+    summary: 'Get all WorkFlowTool data with pagination and search.',
   })
   @ApiQuery({
     name: 'limit',
@@ -79,24 +79,23 @@ export class WorkGalleryController {
     description: 'Additional filter fields (e.g., status, createdBy, etc.).',
     example: 'active',
   })
-  findAll(@Query() getWorkGalleryDto: GetWorkGalleryDto) {
-    return this.workGalleryService.findAll(getWorkGalleryDto);
+  findAll(@Query() getWorkFlowToolDto: GetWorkFlowToolDto) {
+    return this.workFlowToolsService.findAll(getWorkFlowToolDto);
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get single Work Gallery by ID' })
+  @ApiOperation({ summary: 'Get single WorkFlowTool by ID' })
   @ApiParam({
     name: 'id',
     type: 'string',
-    description: 'Unique identifier of the Work Gallery',
+    description: 'Unique identifier of the WorkFlowTool',
     example: 'f61b1f0e-1234-4d65-b12c-a1a23c21f456',
   })
   @ApiResponse({ status: 200, description: 'Data fetched successfully.' })
   @ApiResponse({ status: 404, description: 'Data not found.' })
   findOne(@Param('id') id: string) {
-    return this.workGalleryService.findOne(id);
+    return this.workFlowToolsService.findOne(id);
   }
-
   @UseGuards(AuthenticationGuard, IpDeviceThrottlerGuard)
   @Throttle({ default: { limit: 20, ttl: 180 } })
   @UseInterceptors(FileInterceptor('photo'))
@@ -118,26 +117,28 @@ export class WorkGalleryController {
   @ApiResponse({ status: 400, description: 'Invalid ID or update data.' })
   update(
     @Param('id') id: string,
-    @Body() updateWorkGalleryDto: UpdateWorkGalleryDto,
+    @Body() updateWorkFlowToolDto: UpdateWorkFlowToolDto,
     @UploadedFile() file?: Express.Multer.File,
   ) {
-    return this.workGalleryService.update(id, updateWorkGalleryDto, file);
+    return this.workFlowToolsService.update(id, updateWorkFlowToolDto, file);
   }
 
   @UseGuards(AuthenticationGuard, IpDeviceThrottlerGuard)
   @Throttle({ default: { limit: 20, ttl: 180 } })
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete a WorkFlowDetail  by ID.' })
   @ApiParam({
     name: 'id',
-    type: 'string',
-    required: true,
-    description: 'The params is required for delete Member',
-    example: '4',
+    type: String,
+    description: 'Unique identifier of the WorkFlowDetail  to delete.',
+    example: '1',
   })
-  @ApiOperation({
-    summary: 'Delete single Member data.',
+  @ApiResponse({
+    status: 200,
+    description: 'WorkFlowDetail  deleted successfully.',
   })
+  @ApiResponse({ status: 404, description: 'WorkFlowDetail  not found.' })
   remove(@Param('id') id: string) {
-    return this.workGalleryService.remove(id);
+    return this.workFlowToolsService.remove(id);
   }
 }

@@ -2,7 +2,7 @@ import { ApiPropertyOptional, IntersectionType } from '@nestjs/swagger';
 import { IsArray, IsOptional, IsString } from 'class-validator';
 import { PaginationQueryDto } from 'src/app/common/data-query/dto/data-query.dto';
 
-class GetTeamMemberSkillBaseDto {
+class GetWorkFlowDetailBaseDto {
   @ApiPropertyOptional({
     description: 'Filter by the title.',
     example: '1',
@@ -20,7 +20,7 @@ class GetTeamMemberSkillBaseDto {
   description?: string;
 }
 
-export class GetTeamMemberSkillDto extends IntersectionType(
-  GetTeamMemberSkillBaseDto,
+export class GetWorkFlowDetailDto extends IntersectionType(
+  GetWorkFlowDetailBaseDto,
   PaginationQueryDto,
 ) {}
